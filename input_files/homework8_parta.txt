@@ -1,0 +1,62 @@
+# MDP for homework 8 part 1
+
+# A and Q are the terminal states with reward 1
+A = 1
+Q = 1
+
+# All other nodes are chance nodes with uniform random probabilities
+B = -2
+B : [A, F, C, B]
+B % 0.25 0.25 0.25 0.25
+
+C = -2
+C : [B, G, D, C]
+C % 0.25 0.25 0.25 0.25
+
+D = -2
+D : [C, H, D, D]
+D % 0.25 0.25 0.25 0.25
+
+E = -2
+E : [A, F, I, E]
+E % 0.25 0.25 0.25 0.25
+
+F = -2
+F : [B, G, J, E]
+F % 0.25 0.25 0.25 0.25
+
+G = -2
+G : [C, H, K, F]
+G % 0.25 0.25 0.25 0.25
+
+H = -2
+H : [D, H, L, G]
+H % 0.25 0.25 0.25 0.25
+
+I = -2
+I : [E, J, M, I]
+I % 0.25 0.25 0.25 0.25
+
+J = -2
+J : [F, K, N, I]
+J % 0.25 0.25 0.25 0.25
+
+K = -2
+K : [G, L, P, J]
+K % 0.25 0.25 0.25 0.25
+
+L = -2
+L : [H, L, Q, K]
+L % 0.25 0.25 0.25 0.25
+
+M = -2
+M : [I, N, M, M]
+M % 0.25 0.25 0.25 0.25
+
+N = -2
+N : [J, P, M, N]
+N % 0.25 0.25 0.25 0.25
+
+P = -2
+P : [Q, K, N, P]
+P % 0.25 0.25 0.25 0.25

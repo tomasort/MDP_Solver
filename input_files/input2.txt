@@ -1,0 +1,15 @@
+# The publisher decision tree
+
+S : [Reject, Publish, Consult]
+S % 1
+Reject=0
+Publish : [Success, Failure]
+Publish % .2 .8
+Success=50000
+Failure=-10000
+Consult=-500
+Consult : [For, Against]
+Consult % .46 .54
+Against=0
+For : [Success, Failure]
+For % .3 .7

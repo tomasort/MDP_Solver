@@ -1,0 +1,3 @@
+S -> Consult
+
+Against=0.000 Consult=3180.000 Failure=-10000.000 For=8000.001 Publish=2000.000 Reject=0.000 S=3180.000 Success=50000.000

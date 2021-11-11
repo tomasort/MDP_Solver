@@ -1,0 +1,65 @@
+# MDP for homework 8 part 2
+
+# A and Q are the terminal states with reward 1
+A = 20
+Q = -20
+
+# States J and G give a reward of 2
+G = 2
+G : [C, H, K, F]
+G % 0.25 0.25 0.25 0.25
+
+J = 2
+J : [F, K, N, I]
+J % 0.25 0.25 0.25 0.25
+
+# All other nodes are decision nodes with uniform random probabilities
+B = -1
+B : [A, F, C, B]
+B % 0.85
+
+C = -1
+C : [B, G, D, C]
+C % 0.85
+
+D = -1
+D : [C, H, D, D]
+D % 0.85
+
+E = -1
+E : [A, F, I, E]
+E % 0.85
+
+F = -1
+F : [B, G, J, E]
+F % 0.85
+
+
+H = -1
+H : [D, H, L, G]
+H % 0.85
+
+I = -1
+I : [E, J, M, I]
+I % 0.85
+
+
+K = -1
+K : [G, L, P, J]
+K % 0.85
+
+L = -1
+L : [H, L, Q, K]
+L % 0.85
+
+M = -1
+M : [I, N, M, M]
+M % 0.85
+
+N = -1
+N : [J, P, M, N]
+N % 0.85
+
+P = -1
+P : [Q, K, N, P]
+P % 0.85

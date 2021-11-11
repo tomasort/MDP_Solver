@@ -1,0 +1,194 @@
+line #0: # Student MDP from DeepMind talk 
+line #1:  
+line #2: Class1 : [Study1, FB] EDGE
+line #3: Study1=-2 REWARD/COST
+line #4: Study1 : [Class2] EDGE
+line #5: Class2 : [Sleep, Study2] EDGE
+line #6: Study2=-2 REWARD/COST
+line #7: Study2 : [Class3] EDGE
+line #8: Sleep=0 REWARD/COST
+line #9: Class3 : [Pass, Pub] EDGE
+line #10: Pass=10 REWARD/COST
+line #11: Drink: [Class1, Class2, Class3] EDGE
+line #12: Drink% .2 .4 .4 PROBABILITIES
+line #13: Pub=1 REWARD/COST
+line #14: Pub : [Drink] EDGE
+line #15: FB=-1 REWARD/COST
+line #16: FB : [Internet] EDGE
+line #17: Internet : [Class1, FB] EDGE
+{   'Class1': Node Class1:          edges=[('Study1', '1.00'), ('FB', '0.00')] decision=True success_rate=1 terminal=False value=0.00 reward=0.00,
+    'Class2': Node Class2:          edges=[('Sleep', '1.00'), ('Study2', '0.00')] decision=True success_rate=1 terminal=False value=0.00 reward=0.00,
+    'Class3': Node Class3:          edges=[('Pass', '1.00'), ('Pub', '0.00')] decision=True success_rate=1 terminal=False value=0.00 reward=0.00,
+    'Drink': Node Drink:            edges=[('Class1', '0.20'), ('Class2', '0.40'), ('Class3', '0.40')] decision=False success_rate=None terminal=False value=0.00 reward=0.00,
+    'FB': Node FB:                  edges=[('Internet', '1.00')] decision=False success_rate=None terminal=False value=-1.00 reward=-1.00,
+    'Internet': Node Internet:      edges=[('Class1', '1.00'), ('FB', '0.00')] decision=True success_rate=1 terminal=False value=0.00 reward=0.00,
+    'Pass': Node Pass:              edges=[] decision=False success_rate=None terminal=True value=10.00 reward=10.00,
+    'Pub': Node Pub:                edges=[('Drink', '1.00')] decision=False success_rate=None terminal=False value=1.00 reward=1.00,
+    'Sleep': Node Sleep:            edges=[] decision=False success_rate=None terminal=True value=0.00 reward=0.00,
+    'Study1': Node Study1:          edges=[('Class2', '1.00')] decision=False success_rate=None terminal=False value=-2.00 reward=-2.00,
+    'Study2': Node Study2:          edges=[('Class3', '1.00')] decision=False success_rate=None terminal=False value=-2.00 reward=-2.00}
+
+Class1 -> FB
+Class2 -> Sleep
+Class3 -> Pub
+Internet -> Class1
+
+Class1=0.000 Class2=0.000 Class3=0.000 Drink=0.000 FB=-1.000 Internet=0.000 Pass=10.000 Pub=1.000 Sleep=0.000 Study1=-2.000 Study2=-2.000
+Class1=-1.000 Class2=0.000 Class3=1.000 Drink=0.000 FB=-1.000 Internet=0.000 Pass=10.000 Pub=1.000 Sleep=0.000 Study1=-2.000 Study2=-2.000
+Class1=-1.000 Class2=0.000 Class3=1.000 Drink=0.200 FB=-1.000 Internet=-1.000 Pass=10.000 Pub=1.000 Sleep=0.000 Study1=-2.000 Study2=-1.000
+Class1=-1.000 Class2=0.000 Class3=1.000 Drink=0.200 FB=-2.000 Internet=-1.000 Pass=10.000 Pub=1.200 Sleep=0.000 Study1=-2.000 Study2=-1.000
+Class1=-2.000 Class2=0.000 Class3=1.200 Drink=0.200 FB=-2.000 Internet=-1.000 Pass=10.000 Pub=1.200 Sleep=0.000 Study1=-2.000 Study2=-1.000
+Class1=-2.000 Class2=0.000 Class3=1.200 Drink=0.080 FB=-2.000 Internet=-2.000 Pass=10.000 Pub=1.200 Sleep=0.000 Study1=-2.000 Study2=-0.800
+Class1=-2.000 Class2=0.000 Class3=1.200 Drink=0.080 FB=-3.000 Internet=-2.000 Pass=10.000 Pub=1.080 Sleep=0.000 Study1=-2.000 Study2=-0.800
+Class1=-3.000 Class2=0.000 Class3=1.080 Drink=0.080 FB=-3.000 Internet=-2.000 Pass=10.000 Pub=1.080 Sleep=0.000 Study1=-2.000 Study2=-0.800
+Class1=-3.000 Class2=0.000 Class3=1.080 Drink=-0.168 FB=-3.000 Internet=-3.000 Pass=10.000 Pub=1.080 Sleep=0.000 Study1=-2.000 Study2=-0.920
+Class1=-3.000 Class2=0.000 Class3=1.080 Drink=-0.168 FB=-4.000 Internet=-3.000 Pass=10.000 Pub=0.832 Sleep=0.000 Study1=-2.000 Study2=-0.920
+Class1=-4.000 Class2=0.000 Class3=0.832 Drink=-0.168 FB=-4.000 Internet=-3.000 Pass=10.000 Pub=0.832 Sleep=0.000 Study1=-2.000 Study2=-0.920
+Class1=-4.000 Class2=0.000 Class3=0.832 Drink=-0.467 FB=-4.000 Internet=-4.000 Pass=10.000 Pub=0.832 Sleep=0.000 Study1=-2.000 Study2=-1.168
+Class1=-4.000 Class2=0.000 Class3=0.832 Drink=-0.467 FB=-5.000 Internet=-4.000 Pass=10.000 Pub=0.533 Sleep=0.000 Study1=-2.000 Study2=-1.168
+Class1=-5.000 Class2=0.000 Class3=0.533 Drink=-0.467 FB=-5.000 Internet=-4.000 Pass=10.000 Pub=0.533 Sleep=0.000 Study1=-2.000 Study2=-1.168
+Class1=-5.000 Class2=0.000 Class3=0.533 Drink=-0.787 FB=-5.000 Internet=-5.000 Pass=10.000 Pub=0.533 Sleep=0.000 Study1=-2.000 Study2=-1.467
+Class1=-5.000 Class2=0.000 Class3=0.533 Drink=-0.787 FB=-6.000 Internet=-5.000 Pass=10.000 Pub=0.213 Sleep=0.000 Study1=-2.000 Study2=-1.467
+Class1=-6.000 Class2=0.000 Class3=0.213 Drink=-0.787 FB=-6.000 Internet=-5.000 Pass=10.000 Pub=0.213 Sleep=0.000 Study1=-2.000 Study2=-1.467
+Class1=-6.000 Class2=0.000 Class3=0.213 Drink=-1.115 FB=-6.000 Internet=-6.000 Pass=10.000 Pub=0.213 Sleep=0.000 Study1=-2.000 Study2=-1.787
+Class1=-6.000 Class2=0.000 Class3=0.213 Drink=-1.115 FB=-7.000 Internet=-6.000 Pass=10.000 Pub=-0.115 Sleep=0.000 Study1=-2.000 Study2=-1.787
+Class1=-7.000 Class2=0.000 Class3=-0.115 Drink=-1.115 FB=-7.000 Internet=-6.000 Pass=10.000 Pub=-0.115 Sleep=0.000 Study1=-2.000 Study2=-1.787
+Class1=-7.000 Class2=0.000 Class3=-0.115 Drink=-1.446 FB=-7.000 Internet=-7.000 Pass=10.000 Pub=-0.115 Sleep=0.000 Study1=-2.000 Study2=-2.115
+Class1=-7.000 Class2=0.000 Class3=-0.115 Drink=-1.446 FB=-8.000 Internet=-7.000 Pass=10.000 Pub=-0.446 Sleep=0.000 Study1=-2.000 Study2=-2.115
+Class1=-8.000 Class2=0.000 Class3=-0.446 Drink=-1.446 FB=-8.000 Internet=-7.000 Pass=10.000 Pub=-0.446 Sleep=0.000 Study1=-2.000 Study2=-2.115
+Class1=-8.000 Class2=0.000 Class3=-0.446 Drink=-1.778 FB=-8.000 Internet=-8.000 Pass=10.000 Pub=-0.446 Sleep=0.000 Study1=-2.000 Study2=-2.446
+Class1=-8.000 Class2=0.000 Class3=-0.446 Drink=-1.778 FB=-9.000 Internet=-8.000 Pass=10.000 Pub=-0.778 Sleep=0.000 Study1=-2.000 Study2=-2.446
+Class1=-9.000 Class2=0.000 Class3=-0.778 Drink=-1.778 FB=-9.000 Internet=-8.000 Pass=10.000 Pub=-0.778 Sleep=0.000 Study1=-2.000 Study2=-2.446
+Class1=-9.000 Class2=0.000 Class3=-0.778 Drink=-2.111 FB=-9.000 Internet=-9.000 Pass=10.000 Pub=-0.778 Sleep=0.000 Study1=-2.000 Study2=-2.778
+Class1=-9.000 Class2=0.000 Class3=-0.778 Drink=-2.111 FB=-10.000 Internet=-9.000 Pass=10.000 Pub=-1.111 Sleep=0.000 Study1=-2.000 Study2=-2.778
+Class1=-10.000 Class2=0.000 Class3=-1.111 Drink=-2.111 FB=-10.000 Internet=-9.000 Pass=10.000 Pub=-1.111 Sleep=0.000 Study1=-2.000 Study2=-2.778
+Class1=-10.000 Class2=0.000 Class3=-1.111 Drink=-2.445 FB=-10.000 Internet=-10.000 Pass=10.000 Pub=-1.111 Sleep=0.000 Study1=-2.000 Study2=-3.111
+Class1=-10.000 Class2=0.000 Class3=-1.111 Drink=-2.445 FB=-11.000 Internet=-10.000 Pass=10.000 Pub=-1.445 Sleep=0.000 Study1=-2.000 Study2=-3.111
+Class1=-11.000 Class2=0.000 Class3=-1.445 Drink=-2.445 FB=-11.000 Internet=-10.000 Pass=10.000 Pub=-1.445 Sleep=0.000 Study1=-2.000 Study2=-3.111
+Class1=-11.000 Class2=0.000 Class3=-1.445 Drink=-2.778 FB=-11.000 Internet=-11.000 Pass=10.000 Pub=-1.445 Sleep=0.000 Study1=-2.000 Study2=-3.445
+Class1=-11.000 Class2=0.000 Class3=-1.445 Drink=-2.778 FB=-12.000 Internet=-11.000 Pass=10.000 Pub=-1.778 Sleep=0.000 Study1=-2.000 Study2=-3.445
+Class1=-12.000 Class2=0.000 Class3=-1.778 Drink=-2.778 FB=-12.000 Internet=-11.000 Pass=10.000 Pub=-1.778 Sleep=0.000 Study1=-2.000 Study2=-3.445
+Class1=-12.000 Class2=0.000 Class3=-1.778 Drink=-3.111 FB=-12.000 Internet=-12.000 Pass=10.000 Pub=-1.778 Sleep=0.000 Study1=-2.000 Study2=-3.778
+Class1=-12.000 Class2=0.000 Class3=-1.778 Drink=-3.111 FB=-13.000 Internet=-12.000 Pass=10.000 Pub=-2.111 Sleep=0.000 Study1=-2.000 Study2=-3.778
+Class1=-13.000 Class2=0.000 Class3=-2.111 Drink=-3.111 FB=-13.000 Internet=-12.000 Pass=10.000 Pub=-2.111 Sleep=0.000 Study1=-2.000 Study2=-3.778
+Class1=-13.000 Class2=0.000 Class3=-2.111 Drink=-3.444 FB=-13.000 Internet=-13.000 Pass=10.000 Pub=-2.111 Sleep=0.000 Study1=-2.000 Study2=-4.111
+Class1=-13.000 Class2=0.000 Class3=-2.111 Drink=-3.444 FB=-14.000 Internet=-13.000 Pass=10.000 Pub=-2.444 Sleep=0.000 Study1=-2.000 Study2=-4.111
+Class1=-14.000 Class2=0.000 Class3=-2.444 Drink=-3.444 FB=-14.000 Internet=-13.000 Pass=10.000 Pub=-2.444 Sleep=0.000 Study1=-2.000 Study2=-4.111
+Class1=-14.000 Class2=0.000 Class3=-2.444 Drink=-3.778 FB=-14.000 Internet=-14.000 Pass=10.000 Pub=-2.444 Sleep=0.000 Study1=-2.000 Study2=-4.444
+Class1=-14.000 Class2=0.000 Class3=-2.444 Drink=-3.778 FB=-15.000 Internet=-14.000 Pass=10.000 Pub=-2.778 Sleep=0.000 Study1=-2.000 Study2=-4.444
+Class1=-15.000 Class2=0.000 Class3=-2.778 Drink=-3.778 FB=-15.000 Internet=-14.000 Pass=10.000 Pub=-2.778 Sleep=0.000 Study1=-2.000 Study2=-4.444
+Class1=-15.000 Class2=0.000 Class3=-2.778 Drink=-4.111 FB=-15.000 Internet=-15.000 Pass=10.000 Pub=-2.778 Sleep=0.000 Study1=-2.000 Study2=-4.778
+Class1=-15.000 Class2=0.000 Class3=-2.778 Drink=-4.111 FB=-16.000 Internet=-15.000 Pass=10.000 Pub=-3.111 Sleep=0.000 Study1=-2.000 Study2=-4.778
+Class1=-16.000 Class2=0.000 Class3=-3.111 Drink=-4.111 FB=-16.000 Internet=-15.000 Pass=10.000 Pub=-3.111 Sleep=0.000 Study1=-2.000 Study2=-4.778
+Class1=-16.000 Class2=0.000 Class3=-3.111 Drink=-4.444 FB=-16.000 Internet=-16.000 Pass=10.000 Pub=-3.111 Sleep=0.000 Study1=-2.000 Study2=-5.111
+Class1=-16.000 Class2=0.000 Class3=-3.111 Drink=-4.444 FB=-17.000 Internet=-16.000 Pass=10.000 Pub=-3.444 Sleep=0.000 Study1=-2.000 Study2=-5.111
+Class1=-17.000 Class2=0.000 Class3=-3.444 Drink=-4.444 FB=-17.000 Internet=-16.000 Pass=10.000 Pub=-3.444 Sleep=0.000 Study1=-2.000 Study2=-5.111
+Class1=-17.000 Class2=0.000 Class3=-3.444 Drink=-4.778 FB=-17.000 Internet=-17.000 Pass=10.000 Pub=-3.444 Sleep=0.000 Study1=-2.000 Study2=-5.444
+Class1=-17.000 Class2=0.000 Class3=-3.444 Drink=-4.778 FB=-18.000 Internet=-17.000 Pass=10.000 Pub=-3.778 Sleep=0.000 Study1=-2.000 Study2=-5.444
+Class1=-18.000 Class2=0.000 Class3=-3.778 Drink=-4.778 FB=-18.000 Internet=-17.000 Pass=10.000 Pub=-3.778 Sleep=0.000 Study1=-2.000 Study2=-5.444
+Class1=-18.000 Class2=0.000 Class3=-3.778 Drink=-5.111 FB=-18.000 Internet=-18.000 Pass=10.000 Pub=-3.778 Sleep=0.000 Study1=-2.000 Study2=-5.778
+Class1=-18.000 Class2=0.000 Class3=-3.778 Drink=-5.111 FB=-19.000 Internet=-18.000 Pass=10.000 Pub=-4.111 Sleep=0.000 Study1=-2.000 Study2=-5.778
+Class1=-19.000 Class2=0.000 Class3=-4.111 Drink=-5.111 FB=-19.000 Internet=-18.000 Pass=10.000 Pub=-4.111 Sleep=0.000 Study1=-2.000 Study2=-5.778
+Class1=-19.000 Class2=0.000 Class3=-4.111 Drink=-5.444 FB=-19.000 Internet=-19.000 Pass=10.000 Pub=-4.111 Sleep=0.000 Study1=-2.000 Study2=-6.111
+Class1=-19.000 Class2=0.000 Class3=-4.111 Drink=-5.444 FB=-20.000 Internet=-19.000 Pass=10.000 Pub=-4.444 Sleep=0.000 Study1=-2.000 Study2=-6.111
+Class1=-20.000 Class2=0.000 Class3=-4.444 Drink=-5.444 FB=-20.000 Internet=-19.000 Pass=10.000 Pub=-4.444 Sleep=0.000 Study1=-2.000 Study2=-6.111
+Class1=-20.000 Class2=0.000 Class3=-4.444 Drink=-5.778 FB=-20.000 Internet=-20.000 Pass=10.000 Pub=-4.444 Sleep=0.000 Study1=-2.000 Study2=-6.444
+Class1=-20.000 Class2=0.000 Class3=-4.444 Drink=-5.778 FB=-21.000 Internet=-20.000 Pass=10.000 Pub=-4.778 Sleep=0.000 Study1=-2.000 Study2=-6.444
+Class1=-21.000 Class2=0.000 Class3=-4.778 Drink=-5.778 FB=-21.000 Internet=-20.000 Pass=10.000 Pub=-4.778 Sleep=0.000 Study1=-2.000 Study2=-6.444
+Class1=-21.000 Class2=0.000 Class3=-4.778 Drink=-6.111 FB=-21.000 Internet=-21.000 Pass=10.000 Pub=-4.778 Sleep=0.000 Study1=-2.000 Study2=-6.778
+Class1=-21.000 Class2=0.000 Class3=-4.778 Drink=-6.111 FB=-22.000 Internet=-21.000 Pass=10.000 Pub=-5.111 Sleep=0.000 Study1=-2.000 Study2=-6.778
+Class1=-22.000 Class2=0.000 Class3=-5.111 Drink=-6.111 FB=-22.000 Internet=-21.000 Pass=10.000 Pub=-5.111 Sleep=0.000 Study1=-2.000 Study2=-6.778
+Class1=-22.000 Class2=0.000 Class3=-5.111 Drink=-6.444 FB=-22.000 Internet=-22.000 Pass=10.000 Pub=-5.111 Sleep=0.000 Study1=-2.000 Study2=-7.111
+Class1=-22.000 Class2=0.000 Class3=-5.111 Drink=-6.444 FB=-23.000 Internet=-22.000 Pass=10.000 Pub=-5.444 Sleep=0.000 Study1=-2.000 Study2=-7.111
+Class1=-23.000 Class2=0.000 Class3=-5.444 Drink=-6.444 FB=-23.000 Internet=-22.000 Pass=10.000 Pub=-5.444 Sleep=0.000 Study1=-2.000 Study2=-7.111
+Class1=-23.000 Class2=0.000 Class3=-5.444 Drink=-6.778 FB=-23.000 Internet=-23.000 Pass=10.000 Pub=-5.444 Sleep=0.000 Study1=-2.000 Study2=-7.444
+Class1=-23.000 Class2=0.000 Class3=-5.444 Drink=-6.778 FB=-24.000 Internet=-23.000 Pass=10.000 Pub=-5.778 Sleep=0.000 Study1=-2.000 Study2=-7.444
+Class1=-24.000 Class2=0.000 Class3=-5.778 Drink=-6.778 FB=-24.000 Internet=-23.000 Pass=10.000 Pub=-5.778 Sleep=0.000 Study1=-2.000 Study2=-7.444
+Class1=-24.000 Class2=0.000 Class3=-5.778 Drink=-7.111 FB=-24.000 Internet=-24.000 Pass=10.000 Pub=-5.778 Sleep=0.000 Study1=-2.000 Study2=-7.778
+Class1=-24.000 Class2=0.000 Class3=-5.778 Drink=-7.111 FB=-25.000 Internet=-24.000 Pass=10.000 Pub=-6.111 Sleep=0.000 Study1=-2.000 Study2=-7.778
+Class1=-25.000 Class2=0.000 Class3=-6.111 Drink=-7.111 FB=-25.000 Internet=-24.000 Pass=10.000 Pub=-6.111 Sleep=0.000 Study1=-2.000 Study2=-7.778
+Class1=-25.000 Class2=0.000 Class3=-6.111 Drink=-7.444 FB=-25.000 Internet=-25.000 Pass=10.000 Pub=-6.111 Sleep=0.000 Study1=-2.000 Study2=-8.111
+Class1=-25.000 Class2=0.000 Class3=-6.111 Drink=-7.444 FB=-26.000 Internet=-25.000 Pass=10.000 Pub=-6.444 Sleep=0.000 Study1=-2.000 Study2=-8.111
+Class1=-26.000 Class2=0.000 Class3=-6.444 Drink=-7.444 FB=-26.000 Internet=-25.000 Pass=10.000 Pub=-6.444 Sleep=0.000 Study1=-2.000 Study2=-8.111
+Class1=-26.000 Class2=0.000 Class3=-6.444 Drink=-7.778 FB=-26.000 Internet=-26.000 Pass=10.000 Pub=-6.444 Sleep=0.000 Study1=-2.000 Study2=-8.444
+Class1=-26.000 Class2=0.000 Class3=-6.444 Drink=-7.778 FB=-27.000 Internet=-26.000 Pass=10.000 Pub=-6.778 Sleep=0.000 Study1=-2.000 Study2=-8.444
+Class1=-27.000 Class2=0.000 Class3=-6.778 Drink=-7.778 FB=-27.000 Internet=-26.000 Pass=10.000 Pub=-6.778 Sleep=0.000 Study1=-2.000 Study2=-8.444
+Class1=-27.000 Class2=0.000 Class3=-6.778 Drink=-8.111 FB=-27.000 Internet=-27.000 Pass=10.000 Pub=-6.778 Sleep=0.000 Study1=-2.000 Study2=-8.778
+Class1=-27.000 Class2=0.000 Class3=-6.778 Drink=-8.111 FB=-28.000 Internet=-27.000 Pass=10.000 Pub=-7.111 Sleep=0.000 Study1=-2.000 Study2=-8.778
+Class1=-28.000 Class2=0.000 Class3=-7.111 Drink=-8.111 FB=-28.000 Internet=-27.000 Pass=10.000 Pub=-7.111 Sleep=0.000 Study1=-2.000 Study2=-8.778
+Class1=-28.000 Class2=0.000 Class3=-7.111 Drink=-8.444 FB=-28.000 Internet=-28.000 Pass=10.000 Pub=-7.111 Sleep=0.000 Study1=-2.000 Study2=-9.111
+Class1=-28.000 Class2=0.000 Class3=-7.111 Drink=-8.444 FB=-29.000 Internet=-28.000 Pass=10.000 Pub=-7.444 Sleep=0.000 Study1=-2.000 Study2=-9.111
+Class1=-29.000 Class2=0.000 Class3=-7.444 Drink=-8.444 FB=-29.000 Internet=-28.000 Pass=10.000 Pub=-7.444 Sleep=0.000 Study1=-2.000 Study2=-9.111
+Class1=-29.000 Class2=0.000 Class3=-7.444 Drink=-8.778 FB=-29.000 Internet=-29.000 Pass=10.000 Pub=-7.444 Sleep=0.000 Study1=-2.000 Study2=-9.444
+Class1=-29.000 Class2=0.000 Class3=-7.444 Drink=-8.778 FB=-30.000 Internet=-29.000 Pass=10.000 Pub=-7.778 Sleep=0.000 Study1=-2.000 Study2=-9.444
+Class1=-30.000 Class2=0.000 Class3=-7.778 Drink=-8.778 FB=-30.000 Internet=-29.000 Pass=10.000 Pub=-7.778 Sleep=0.000 Study1=-2.000 Study2=-9.444
+Class1=-30.000 Class2=0.000 Class3=-7.778 Drink=-9.111 FB=-30.000 Internet=-30.000 Pass=10.000 Pub=-7.778 Sleep=0.000 Study1=-2.000 Study2=-9.778
+Class1=-30.000 Class2=0.000 Class3=-7.778 Drink=-9.111 FB=-31.000 Internet=-30.000 Pass=10.000 Pub=-8.111 Sleep=0.000 Study1=-2.000 Study2=-9.778
+Class1=-31.000 Class2=0.000 Class3=-8.111 Drink=-9.111 FB=-31.000 Internet=-30.000 Pass=10.000 Pub=-8.111 Sleep=0.000 Study1=-2.000 Study2=-9.778
+Class1=-31.000 Class2=0.000 Class3=-8.111 Drink=-9.444 FB=-31.000 Internet=-31.000 Pass=10.000 Pub=-8.111 Sleep=0.000 Study1=-2.000 Study2=-10.111
+Class1=-31.000 Class2=0.000 Class3=-8.111 Drink=-9.444 FB=-32.000 Internet=-31.000 Pass=10.000 Pub=-8.444 Sleep=0.000 Study1=-2.000 Study2=-10.111
+Class1=-32.000 Class2=0.000 Class3=-8.444 Drink=-9.444 FB=-32.000 Internet=-31.000 Pass=10.000 Pub=-8.444 Sleep=0.000 Study1=-2.000 Study2=-10.111
+Class1=-32.000 Class2=0.000 Class3=-8.444 Drink=-9.778 FB=-32.000 Internet=-32.000 Pass=10.000 Pub=-8.444 Sleep=0.000 Study1=-2.000 Study2=-10.444
+Class1=-32.000 Class2=0.000 Class3=-8.444 Drink=-9.778 FB=-33.000 Internet=-32.000 Pass=10.000 Pub=-8.778 Sleep=0.000 Study1=-2.000 Study2=-10.444
+Class1=-33.000 Class2=0.000 Class3=-8.778 Drink=-9.778 FB=-33.000 Internet=-32.000 Pass=10.000 Pub=-8.778 Sleep=0.000 Study1=-2.000 Study2=-10.444
+Class1=-33.000 Class2=0.000 Class3=-8.778 Drink=-10.111 FB=-33.000 Internet=-33.000 Pass=10.000 Pub=-8.778 Sleep=0.000 Study1=-2.000 Study2=-10.778
+Class1=-33.000 Class2=0.000 Class3=-8.778 Drink=-10.111 FB=-34.000 Internet=-33.000 Pass=10.000 Pub=-9.111 Sleep=0.000 Study1=-2.000 Study2=-10.778
+Class1=-34.000 Class2=0.000 Class3=-9.111 Drink=-10.111 FB=-34.000 Internet=-33.000 Pass=10.000 Pub=-9.111 Sleep=0.000 Study1=-2.000 Study2=-10.778
+Class1 -> Study1
+Class2 -> Sleep
+Class3 -> Pass
+Internet -> Class1
+
+{   'Class1': Node Class1:          edges=[('Study1', '1.00'), ('FB', '0.00')] decision=True success_rate=1 terminal=False value=-34.00 reward=0.00,
+    'Class2': Node Class2:          edges=[('Sleep', '1.00'), ('Study2', '0.00')] decision=True success_rate=1 terminal=False value=0.00 reward=0.00,
+    'Class3': Node Class3:          edges=[('Pass', '1.00'), ('Pub', '0.00')] decision=True success_rate=1 terminal=False value=-9.11 reward=0.00,
+    'Drink': Node Drink:            edges=[('Class1', '0.20'), ('Class2', '0.40'), ('Class3', '0.40')] decision=False success_rate=None terminal=False value=-10.44 reward=0.00,
+    'FB': Node FB:                  edges=[('Internet', '1.00')] decision=False success_rate=None terminal=False value=-34.00 reward=-1.00,
+    'Internet': Node Internet:      edges=[('Class1', '1.00'), ('FB', '0.00')] decision=True success_rate=1 terminal=False value=-34.00 reward=0.00,
+    'Pass': Node Pass:              edges=[] decision=False success_rate=None terminal=True value=10.00 reward=10.00,
+    'Pub': Node Pub:                edges=[('Drink', '1.00')] decision=False success_rate=None terminal=False value=-9.11 reward=1.00,
+    'Sleep': Node Sleep:            edges=[] decision=False success_rate=None terminal=True value=0.00 reward=0.00,
+    'Study1': Node Study1:          edges=[('Class2', '1.00')] decision=False success_rate=None terminal=False value=-2.00 reward=-2.00,
+    'Study2': Node Study2:          edges=[('Class3', '1.00')] decision=False success_rate=None terminal=False value=-11.11 reward=-2.00}
+Class1 -> Study1
+Class2 -> Sleep
+Class3 -> Pass
+Internet -> Class1
+
+Class1=-34.000 Class2=0.000 Class3=-9.111 Drink=-10.444 FB=-34.000 Internet=-34.000 Pass=10.000 Pub=-9.111 Sleep=0.000 Study1=-2.000 Study2=-11.111
+Class1=-2.000 Class2=0.000 Class3=10.000 Drink=-10.444 FB=-35.000 Internet=-34.000 Pass=10.000 Pub=-9.444 Sleep=0.000 Study1=-2.000 Study2=-11.111
+Class1=-2.000 Class2=0.000 Class3=10.000 Drink=3.600 FB=-35.000 Internet=-2.000 Pass=10.000 Pub=-9.444 Sleep=0.000 Study1=-2.000 Study2=8.000
+Class1=-2.000 Class2=0.000 Class3=10.000 Drink=3.600 FB=-3.000 Internet=-2.000 Pass=10.000 Pub=4.600 Sleep=0.000 Study1=-2.000 Study2=8.000
+Class1 -> Study1
+Class2 -> Study2
+Class3 -> Pass
+Internet -> Class1
+
+{   'Class1': Node Class1:          edges=[('Study1', '1.00'), ('FB', '0.00')] decision=True success_rate=1 terminal=False value=-2.00 reward=0.00,
+    'Class2': Node Class2:          edges=[('Sleep', '0.00'), ('Study2', '1.00')] decision=True success_rate=1 terminal=False value=0.00 reward=0.00,
+    'Class3': Node Class3:          edges=[('Pass', '1.00'), ('Pub', '0.00')] decision=True success_rate=1 terminal=False value=10.00 reward=0.00,
+    'Drink': Node Drink:            edges=[('Class1', '0.20'), ('Class2', '0.40'), ('Class3', '0.40')] decision=False success_rate=None terminal=False value=3.60 reward=0.00,
+    'FB': Node FB:                  edges=[('Internet', '1.00')] decision=False success_rate=None terminal=False value=-3.00 reward=-1.00,
+    'Internet': Node Internet:      edges=[('Class1', '1.00'), ('FB', '0.00')] decision=True success_rate=1 terminal=False value=-2.00 reward=0.00,
+    'Pass': Node Pass:              edges=[] decision=False success_rate=None terminal=True value=10.00 reward=10.00,
+    'Pub': Node Pub:                edges=[('Drink', '1.00')] decision=False success_rate=None terminal=False value=4.60 reward=1.00,
+    'Sleep': Node Sleep:            edges=[] decision=False success_rate=None terminal=True value=0.00 reward=0.00,
+    'Study1': Node Study1:          edges=[('Class2', '1.00')] decision=False success_rate=None terminal=False value=-2.00 reward=-2.00,
+    'Study2': Node Study2:          edges=[('Class3', '1.00')] decision=False success_rate=None terminal=False value=8.00 reward=-2.00}
+Class1 -> Study1
+Class2 -> Study2
+Class3 -> Pass
+Internet -> Class1
+
+Class1=-2.000 Class2=0.000 Class3=10.000 Drink=3.600 FB=-3.000 Internet=-2.000 Pass=10.000 Pub=4.600 Sleep=0.000 Study1=-2.000 Study2=8.000
+{   'Class1': Node Class1:          edges=[('Study1', '1.00'), ('FB', '0.00')] decision=True success_rate=1 terminal=False value=-2.00 reward=0.00,
+    'Class2': Node Class2:          edges=[('Sleep', '0.00'), ('Study2', '1.00')] decision=True success_rate=1 terminal=False value=0.00 reward=0.00,
+    'Class3': Node Class3:          edges=[('Pass', '1.00'), ('Pub', '0.00')] decision=True success_rate=1 terminal=False value=10.00 reward=0.00,
+    'Drink': Node Drink:            edges=[('Class1', '0.20'), ('Class2', '0.40'), ('Class3', '0.40')] decision=False success_rate=None terminal=False value=3.60 reward=0.00,
+    'FB': Node FB:                  edges=[('Internet', '1.00')] decision=False success_rate=None terminal=False value=-3.00 reward=-1.00,
+    'Internet': Node Internet:      edges=[('Class1', '1.00'), ('FB', '0.00')] decision=True success_rate=1 terminal=False value=-2.00 reward=0.00,
+    'Pass': Node Pass:              edges=[] decision=False success_rate=None terminal=True value=10.00 reward=10.00,
+    'Pub': Node Pub:                edges=[('Drink', '1.00')] decision=False success_rate=None terminal=False value=4.60 reward=1.00,
+    'Sleep': Node Sleep:            edges=[] decision=False success_rate=None terminal=True value=0.00 reward=0.00,
+    'Study1': Node Study1:          edges=[('Class2', '1.00')] decision=False success_rate=None terminal=False value=-2.00 reward=-2.00,
+    'Study2': Node Study2:          edges=[('Class3', '1.00')] decision=False success_rate=None terminal=False value=8.00 reward=-2.00}

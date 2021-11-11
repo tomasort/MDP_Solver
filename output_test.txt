@@ -1,0 +1,2 @@
+
+Assist=274.765 Assoc=564.042 Dead=0.000 Street=27.027 Tenure=1081.081
