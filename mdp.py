@@ -5,6 +5,10 @@ import sys
 import pprint
 import random
 
+import dash
+import dash_cytoscape as cyto
+from dash import html
+
 # Our initial policy is to apply the success rate to the first edge in the list of edges (we are using a dictionary)
 
 alphanumeric = re.compile(r"[a-zA-Z0-9]+")
@@ -27,6 +31,7 @@ def print_d(*args, **kwargs):
 
 class Policy(dict):
     """A class to specify the policy of an MDP. A Policy is simply a mapping between Decision nodes and Actions"""
+
     def __init__(self, iterable=None):
         """If random_policy is true then we initialize a random policy for the given graph. If it is false we initialize an empty policy"""
         if iterable:
@@ -52,6 +57,7 @@ class Policy(dict):
 
 class MDP(dict):
     """A class for an MDP graph"""
+
     def __init__(self, df=1.0, policy=None, tolerance=0.01, max_iter=100, use_min=False):
         """df: discount factor"""
         super(MDP, self).__init__()
@@ -80,7 +86,7 @@ class MDP(dict):
                     if e == policy[node.name]:
                         node.edges[e] = node.success_rate
                     else:
-                        node.edges[e] = (1-node.success_rate)/(len(node.edges)-1)
+                        node.edges[e] = (1 - node.success_rate) / (len(node.edges) - 1)
 
     def policy_iteration(self):
         if not self.policy:
@@ -100,7 +106,8 @@ class MDP(dict):
                         print_d(f"Testing Policy: {node.name} -> {action}")
                         action_value = self.value(node, new_policy)
                         print_d(f"Action {node.name} -> {action} has a value of {action_value}")
-                        if (best_action_value < action_value and not self.use_min) or (best_action_value > action_value and self.use_min):
+                        if (best_action_value < action_value and not self.use_min) or (
+                                best_action_value > action_value and self.use_min):
                             print_d(f"Action {node.name} -> {action} Is the current best action")
                             best_action_value = action_value
                             best_action = action
@@ -130,14 +137,6 @@ class MDP(dict):
             for node in new_values.keys():
                 self[node.name].value = new_values[node]
             current_values = new_values
-            # print("---------------------------------")
-            # print("Previous")
-            # pp.pprint(previous_values)
-            # print("---------------------------------")
-            # print("Current")
-            # pp.pprint(current_values)
-            # print("---------------------------------")
-            # print(iter_num)
             if self.values_converge(previous_values, current_values) or iter_num >= self.max_iter:
                 break
             iter_num += 1
@@ -172,7 +171,7 @@ class MDP(dict):
                 if e == action:
                     probabilities[e] = state.success_rate
                 else:
-                    probabilities[e] = Decimal((1-state.success_rate)/(len(edges)-1))
+                    probabilities[e] = Decimal((1 - state.success_rate) / (len(edges) - 1))
         # print(f"Calculating The expected utility for state {state.name} with edges {list(state.edges.keys())}")
         for node_name, prob in probabilities.items():
             # print(f"\t{node_name} E += {self.df} * {prob} * {self[node_name].value} = {Decimal(self.df) * Decimal(prob) * self[node_name].value} ")
@@ -193,6 +192,37 @@ class MDP(dict):
     def print_solution(self):
         self.print_policy()
         self.print_values()
+
+    def print_as_tree(self):
+        size = 400
+        nodes = [{'data': {'id': x.name, 'label': f"{x.name.upper()}, {x.value}"},
+                  'position': {'x': random.randint(0, size), 'y': random.randint(0, size)}} for x in self.values()]
+        edges = []
+        for i in self.keys():
+            for k, val in self[i].edges.items():
+                edges.append({'data': {'id': f"{i}{k}", 'source': i, 'target': k, 'weight': val}})
+        return cyto.Cytoscape(
+            id="MDP graph",
+            layout={'name': 'preset'},
+            style={'wdith': '100%', 'height': f"{size}px"},
+            elements=nodes + edges,
+            stylesheet=
+            [
+                {
+                    'selector': 'node',
+                    'style': {
+                        'content': 'data(label)',
+                    }
+                },
+                {
+                    'selector': 'edge',
+                    'style': {
+                        'curve-style': 'bezier',
+                        'source-arrow-shape': 'triangle',
+                        'label': 'data(weight)'
+                    }
+                }]
+        )
 
     def read_file(self, file_name):
         lines = []
@@ -248,7 +278,7 @@ class MDP(dict):
                     if len(edge_probabilities) == 1:
                         # decision node
                         success_rate = Decimal(edge_probabilities[0])
-                        prob_for_other_edges = (1 - success_rate)/(len(self[node_name].edges) - 1)
+                        prob_for_other_edges = (1 - success_rate) / (len(self[node_name].edges) - 1)
                         self[node_name].success_rate = success_rate
                         self[node_name].is_decision = True
                         # get the remaining probability and distribute it among the remaining edges
@@ -308,6 +338,7 @@ class MDP(dict):
 
 class Node:
     """This class represents a node in an MDP"""
+
     def __init__(self, name, rc=0, decision_node=False):
         self.name = name
         self.rc = rc
@@ -315,7 +346,7 @@ class Node:
         self.is_decision = decision_node
         self.success_rate = None
         self.is_terminal = False
-        self.value = rc   # Every nodes starts with a value equal to its reward
+        self.value = rc  # Every nodes starts with a value equal to its reward
         self.edge_line = None  # String containing the edge line from the input file
 
     # a generator for computing the actions (the node that we want to move to and the probabilities for the edges) from the current state
@@ -336,14 +367,20 @@ class Node:
         return self.name.__hash__()
 
 
+app = dash.Dash(__name__)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Markov Process Solver: A generic markov process solver')
     parser.add_argument('-df', nargs='?', type=float, required=False, default=1.0,
                         help="Discount factor [0, 1] to use on future rewards, defaults to 1.0")
-    parser.add_argument('-min', required=False, action='store_true', help='minimize values as costs, defaults to false which maximizes values as rewards')
-    parser.add_argument('-tol', nargs='?', default=0.01, type=float, required=False, help='Tolerance for exiting value iteration, defaults to 0.01')
-    parser.add_argument('-iter', nargs='?', default=100, type=float, required=False, help='Integer that indicates a cutoff for value iteration, defaults to 100')
-    parser.add_argument('-d', required=False, action='store_true', help='flag for debugging. It prints the attributes of the nodes before and after solving the MDP')
+    parser.add_argument('-min', required=False, action='store_true',
+                        help='minimize values as costs, defaults to false which maximizes values as rewards')
+    parser.add_argument('-tol', nargs='?', default=0.01, type=float, required=False,
+                        help='Tolerance for exiting value iteration, defaults to 0.01')
+    parser.add_argument('-iter', nargs='?', default=100, type=float, required=False,
+                        help='Integer that indicates a cutoff for value iteration, defaults to 100')
+    parser.add_argument('-d', required=False, action='store_true',
+                        help='flag for debugging. It prints the attributes of the nodes before and after solving the MDP')
     parser.add_argument('filename', help='Input file')
     args = parser.parse_args(sys.argv[1:])
     debug = args.d
@@ -351,3 +388,5 @@ if __name__ == '__main__':
     mdp.read_file(args.filename)
     mdp.solve()
     mdp.print_solution()
+    app.layout = html.Div([mdp.print_as_tree()])
+    app.run_server(debug=True)
