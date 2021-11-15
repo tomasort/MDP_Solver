@@ -5,17 +5,11 @@ import sys
 import pprint
 import random
 
-import dash
-import dash_cytoscape as cyto
-from dash import html
-
-# Our initial policy is to apply the success rate to the first edge in the list of edges (we are using a dictionary)
-
 alphanumeric = re.compile(r"[a-zA-Z0-9]+")
 comment = re.compile(r"^#.*$")
 value = re.compile(r"[0-9\-]*")
-# rc lines are of the form 'name = value' where value is an integer
-rc_line = re.compile(f"^[a-zA-Z0-9\-]+ *= *-?[0-9]*$")
+# reward lines are of the form 'name = value' where value is an integer
+reward_line = re.compile(f"^[a-zA-Z0-9\-]+ *= *-?[0-9]*$")
 # edges are of the form 'name : [e1, e2, e2]' where each e# is the name of an out edge from name
 edge_line = re.compile(f"^[a-zA-Z0-9]+ *: *\[ *([a-zA-Z0-9]*) *(, *[a-zA-Z0-9]*)* *\]$")
 # probabilities are of the form 'name % p1 p2 p3'
@@ -24,9 +18,89 @@ pp = pprint.PrettyPrinter(indent=4)
 debug = False
 
 
+def tokenize(line):
+    """Separates the node name and the rest of the values depending on the type of the line"""
+    if "=" in line:
+        # tokenize the reward line
+        tokens = [x.strip() for x in line.split("=")]
+        return tokens[0], Decimal(tokens[1])
+    if ":" in line:
+        # tokenize the edge line
+        tokens = [x.strip() for x in line.split(":")]
+        edges = [x.strip() for x in tokens[1].strip("[]").split(',')]
+        return tokens[0], edges
+    if "%" in line:
+        tokens = [x.strip() for x in line.split("%")]
+        probabilities = [x.strip() for x in tokens[1].split(' ')]
+        return tokens[0], probabilities
+
+
 def print_d(*args, **kwargs):
+    """Function to print stuff if we are in debug mode"""
     if debug:
         print(*args, **kwargs)
+
+
+class Node:
+    """This class represents a node in an MDP
+        It can be a decision node, a terminal node or a chance node. """
+
+    def __init__(self, name, reward=Decimal(0), node_class="chance"):
+        self.name = name
+        self.reward = reward
+        self.edges = {}
+        self.node_class = node_class
+        self.success_rate = None
+        self.value = reward  # Every nodes starts with a value equal to its reward
+        self.edge_order = []  # list containing the edges from the input file. This is needed to maintain the order
+
+    # a generator for computing the actions (the node that we want to move to and the probabilities for the edges) from the current state
+    def actions(self):
+        """Function that returns the set of actions available from the current node.
+            This function is used in policy iteration to go through the various actions. """
+        edge_probabilities = sorted(list(self.edges.values()), reverse=True)
+        edge_names = list(self.edges.keys())
+        for i in range(len(self.edges)):
+            yield edge_names[i], {v1: v2 for v1, v2 in zip(edge_names, edge_probabilities)}
+            # rotate edge_probabilities
+            edge_probabilities = edge_probabilities[-1:] + edge_probabilities[:-1]
+
+    def is_decision(self):
+        return self.node_class == "decision"
+
+    def is_terminal(self):
+        return self.node_class == "terminal"
+
+    def add_edges(self, neighbors):
+        self.edge_order = neighbors  # we need to keep the order of the edges. (this is specially important when there are duplicate edges)
+        for e in neighbors:
+            self.edges[e.strip()] = Decimal(0)  # The default probability is 0
+
+    def add_probabilities(self, probabilities):
+        if len(probabilities) == 1:
+            success_rate = Decimal(probabilities[0])
+            prob_for_other_edges = (1 - success_rate) / (len(self.edges) - 1)
+            self.success_rate = success_rate
+            self.node_class = "decision"
+            # get the remaining probability and distribute it among the remaining edges
+            for j, k_ in enumerate(self.edges.keys()):
+                self.edges[k_] = success_rate if j == 0 else prob_for_other_edges
+        else:
+            p_sum = 0
+            for j, e in enumerate(self.edge_order):
+                p_sum += Decimal(probabilities[j])
+                self.edges[e] += Decimal(probabilities[j])
+            if p_sum != 1:
+                print("The probabilities must add up to 1")
+                sys.exit(1)
+
+    def __repr__(self):
+        # Mainly for debugging
+        return f"{self.name}: class={self.node_class} edges={[(a, '%.3f' % float(round(b, 4))) for a, b in self.edges.items()]} " \
+               f"success_rate={self.success_rate} value={'%.2f' % round(self.value, 5)} reward={'%.2f' % self.reward}"
+
+    def __hash__(self):
+        return self.name.__hash__()
 
 
 class Policy(dict):
@@ -39,11 +113,14 @@ class Policy(dict):
         else:
             super(Policy, self).__init__()
 
-    def random_policy(self, graph):
+    @staticmethod
+    def random_policy(graph):
         """This function initializes the policy as a random policy for the given graph"""
+        policy = Policy()
         for k in graph.keys():
-            if graph[k].is_decision:
-                self[k] = random.choice(list(graph[k].edges.keys()))
+            if graph[k].is_decision():
+                policy[k] = random.choice(list(graph[k].edges.keys()))
+        return policy
 
     def __str__(self):
         policy = []
@@ -52,36 +129,48 @@ class Policy(dict):
         return "".join(policy)
 
     def __copy__(self):
-        return self.__init__(self)
+        return Policy(self)
+
+    def __eq__(self, other):
+        if (not self or not other) and not (len(self) == 0 and len(other) == 0):
+            return False
+        for a, b in zip(self, other):
+            if self[a] != other[b]:
+                return False
+        return True
 
 
 class MDP(dict):
-    """A class for an MDP graph"""
+    """A class for an MDP.
+        It contains methods for manipulating, solving and printing MDPs and MRPs"""
 
-    def __init__(self, df=1.0, policy=None, tolerance=0.01, max_iter=100, use_min=False):
+    def __init__(self, df=1.0, policy=None, tol=0.01, max_iter=100, use_min=False):
         """df: discount factor"""
         super(MDP, self).__init__()
+        if policy is None:
+            policy = Policy()
         self.policy = policy
         self.df = df
-        self.tolerance = tolerance
+        self.tol = tol
         self.max_iter = max_iter
         self.use_min = use_min
 
     def solve(self):
-        current_policy = self.policy
+        """Solves the MDP using value iteration and greedy policy iteration"""
+        current_policy = self.policy.copy()
         while True:
             self.value_iteration()
             self.policy_iteration()
-            previous_policy = current_policy
+            previous_policy = current_policy.copy()
             current_policy = self.policy.copy()
             self.apply_policy(self.policy)
-            if self.policies_converge(previous_policy, current_policy):
+            if previous_policy == current_policy:
                 break
         self.apply_policy(self.policy)
 
     def apply_policy(self, policy):
         for node in self.values():
-            if node.is_decision:
+            if node.is_decision():
                 for e in node.edges.keys():
                     if e == policy[node.name]:
                         node.edges[e] = node.success_rate
@@ -89,81 +178,85 @@ class MDP(dict):
                         node.edges[e] = (1 - node.success_rate) / (len(node.edges) - 1)
 
     def policy_iteration(self):
+        print_d(f"Going into Policy Iteration:")
         if not self.policy:
-            self.policy.random_policy(self)
-        current_policy = self.policy
+            self.policy = Policy.random_policy(self)
+        current_policy = self.policy.__copy__()
         iter_num = 0
         while True:
-            new_policy = current_policy
+            new_policy = current_policy.__copy__()
             for node in self.values():
                 best_action = None
                 best_action_value = float("-inf")
                 if self.use_min:
                     best_action_value = float("+inf")
-                if node.is_decision:
+                if node.is_decision():
+                    print_d(f"Looking for best action in {node.name}")
                     for action, probabilities in node.actions():
                         new_policy[node.name] = action
-                        print_d(f"Testing Policy: {node.name} -> {action}")
+                        print_d(f"\tTesting Policy: {node.name} -> {action}")
                         action_value = self.value(node, new_policy)
-                        print_d(f"Action {node.name} -> {action} has a value of {action_value}")
+                        print_d(f"\t\t\tAction {node.name} -> {action} has a value of {action_value}")
                         if (best_action_value < action_value and not self.use_min) or (
                                 best_action_value > action_value and self.use_min):
-                            print_d(f"Action {node.name} -> {action} Is the current best action")
+                            print_d(f"\tBest Action at {node.name}: {node.name} -> {action}")
                             best_action_value = action_value
                             best_action = action
                     if best_action:
                         new_policy[node.name] = best_action
-            previous_policy = current_policy
-            current_policy = new_policy
-            if self.policies_converge(previous_policy, current_policy):
+            previous_policy = current_policy.__copy__()
+            current_policy = new_policy.__copy__()
+            if previous_policy == current_policy:
+                print_d(f"The Policies ARE equal. Iterations: {iter_num}")
+                print_d(f"Previous Policy: {previous_policy}")
+                print_d(f"Current Policy: {current_policy}")
                 break
+            print_d(f"The Policies are NOT equal. Iterations: {iter_num}")
+            print_d(f"Previous Policy: {previous_policy}")
+            print_d(f"Current Policy: {current_policy}")
             iter_num += 1
-        self.policy = new_policy
+        self.policy = new_policy.__copy__()
 
-    def value_iteration(self, policy=None):
+    def value_iteration(self):
+        print_d(f"Going into Value Iteration:")
+        print_d(f"Using policy: {self.policy}")
         current_values = {k: v.value for k, v in self.items()}
         iter_num = 0
-        if not policy:
-            if not self.policy:
-                self.policy = Policy()
-                self.policy.random_policy(self)
-            policy = self.policy
+        if not self.policy:
+            self.policy = Policy.random_policy(self)
         while True:
             new_values = {}
             for node in self.values():
                 # for action, probabilities in node.actions():
-                new_values[node] = self.value(node, policy)
-            previous_values = current_values
+                new_values[node] = self.value(node, self.policy)
+            previous_values = current_values.copy()
             for node in new_values.keys():
                 self[node.name].value = new_values[node]
-            current_values = new_values
-            if self.values_converge(previous_values, current_values) or iter_num >= self.max_iter:
+            current_values = new_values.copy()
+
+            # Test to see if the current values and the previous values are sufficiently similar
+            values_converge = True
+            if not previous_values or not current_values:
+                values_converge = False
+            for a, b in zip(previous_values, current_values):
+                if abs(previous_values[a] - current_values[b]) > self.tol:
+                    values_converge = False
+            if values_converge or iter_num >= self.max_iter:
+                print_d(f"The values ARE equal. Iteration: {iter_num}")
+                print_d(f"Previous values: {previous_values}")
+                print_d(f"Current values: {current_values}")
                 break
+            print_d(f"The values are NOT equal. Iteration: {iter_num}")
+            print_d(f"Previous values: {previous_values}")
+            print_d(f"Current values: {current_values}")
             iter_num += 1
-
-    def values_converge(self, previous_values, current_values):
-        if not previous_values or not current_values:
-            return False
-        for a, b in zip(previous_values, current_values):
-            if abs(previous_values[a] - current_values[b]) > self.tolerance:
-                return False
-        return True
-
-    @staticmethod
-    def policies_converge(previous_policy, current_policy):
-        if (not previous_policy or not current_policy) and (previous_policy != current_policy):
-            return False
-        for a, b in zip(previous_policy, current_policy):
-            if previous_policy[a] != current_policy[b]:
-                return False
-        return True
 
     def value(self, state, policy=None):
         if not policy:
             policy = self.policy
         probabilities = state.edges
         expected_utility = 0
-        if state.is_decision:
+        if state.is_decision():
             action = policy[state.name]
             edges = list(state.edges.keys())
             probabilities = {}
@@ -172,204 +265,88 @@ class MDP(dict):
                     probabilities[e] = state.success_rate
                 else:
                     probabilities[e] = Decimal((1 - state.success_rate) / (len(edges) - 1))
-        # print(f"Calculating The expected utility for state {state.name} with edges {list(state.edges.keys())}")
         for node_name, prob in probabilities.items():
-            # print(f"\t{node_name} E += {self.df} * {prob} * {self[node_name].value} = {Decimal(self.df) * Decimal(prob) * self[node_name].value} ")
             expected_utility += Decimal(self.df) * Decimal(prob) * self[node_name].value
-        # state.value = state.rc + expected_utility
-        # print(f"\t Utility = {state.rc} + {expected_utility} = {state.rc + expected_utility}")
-        return Decimal(state.rc) + expected_utility
+        return Decimal(state.reward) + expected_utility
 
-    def print_policy(self):
-        print(self.policy)
-
-    def print_values(self):
+    def print_solution(self):
+        """Prints solution in the format required for the assignment. It also displays the values in alphabetical order"""
+        print(self.policy.__str__())
         values = []
         for node_name in sorted(list(self.keys())):
             values.append(f"{node_name}={'%.3f' % round(self[node_name].value, 3)}")
         print(" ".join(values))
 
-    def print_solution(self):
-        self.print_policy()
-        self.print_values()
-
-    def print_as_tree(self):
-        size = 400
-        nodes = [{'data': {'id': x.name, 'label': f"{x.name.upper()}, {x.value}"},
-                  'position': {'x': random.randint(0, size), 'y': random.randint(0, size)}} for x in self.values()]
-        edges = []
-        for i in self.keys():
-            for k, val in self[i].edges.items():
-                edges.append({'data': {'id': f"{i}{k}", 'source': i, 'target': k, 'weight': val}})
-        return cyto.Cytoscape(
-            id="MDP graph",
-            layout={'name': 'preset'},
-            style={'wdith': '100%', 'height': f"{size}px"},
-            elements=nodes + edges,
-            stylesheet=
-            [
-                {
-                    'selector': 'node',
-                    'style': {
-                        'content': 'data(label)',
-                    }
-                },
-                {
-                    'selector': 'edge',
-                    'style': {
-                        'curve-style': 'bezier',
-                        'source-arrow-shape': 'triangle',
-                        'label': 'data(weight)'
-                    }
-                }]
-        )
-
-    def read_file(self, file_name):
+    @staticmethod
+    def read_file(file_name, df=1.0, tol=0.01, max_iter=100, use_min=False):
+        mdp_from_file = MDP(df, None, tol, max_iter, use_min)
         lines = []
         with open(file_name) as in_file:
             for line in in_file.readlines():
                 lines.append(line)
-        self.parse_input(lines=lines)
+        MDP.parse_input(mdp_from_file, lines=lines)
+        mdp_from_file.policy = Policy.random_policy(mdp_from_file)
+        mdp_from_file.apply_policy(mdp_from_file.policy)
+        return mdp_from_file
 
-    def parse_input(self, lines=None):
-        if lines is None:
-            lines = []
-        unclaimed_probabilities = []
-        for i, line in enumerate(lines):
-            line_ = line.replace('\n', '')
-            print_d(f"line #{i}: {line_}", end=' ')
-            if line == '\n' or comment.match(line_):
-                print_d()
-                continue
-            # Figure out what kind of line line is.
-            elif rc_line.match(line_):
-                print_d("REWARD/COST")
-                symbols = [x.strip() for x in line_.split("=")]
-                if symbols[0] in self.keys():
-                    # if the node is already in the graph, add the reward/cost value
-                    self[symbols[0]].rc = Decimal(symbols[1])
-                    # self[symbols[0]].value = Decimal(symbols[1])
-                else:
-                    # if the node not in the graph, create a new node
-                    self[symbols[0]] = Node(symbols[0], Decimal(symbols[1]))
-            elif edge_line.match(line_):
-                print_d("EDGE")
-                # name: [e1, e2, e2]
-                symbols = [x.strip() for x in line_.split(":")]
-                node_name = symbols[0]
-                edges = [x.strip() for x in symbols[1].strip("[]").split(',')]
-                if node_name not in self.keys():
-                    self[node_name] = Node(node_name)
-                self[node_name].edge_line = edges
-                for e in edges:
-                    new_edge = e.strip()
-                    # add e to the edges of the node with name node_name
-                    # For arbitrary (and honestly silly) reasons we don't have the probability right now so we just use None as a placeholder
-                    self[node_name].edges[e] = None
-            elif probability_line.match(line_):
-                print_d("PROBABILITIES")
-                # name % p1 p2 p3
-                symbols = [x.strip() for x in line_.split("%")]
-                node_name = symbols[0]
-                edge_probabilities = [x.strip() for x in symbols[1].split(' ')]
-                if node_name not in self.keys():
-                    unclaimed_probabilities.append(line_)
-                else:
-                    if len(edge_probabilities) == 1:
-                        # decision node
-                        success_rate = Decimal(edge_probabilities[0])
-                        prob_for_other_edges = (1 - success_rate) / (len(self[node_name].edges) - 1)
-                        self[node_name].success_rate = success_rate
-                        self[node_name].is_decision = True
-                        # get the remaining probability and distribute it among the remaining edges
-                        for j, k_ in enumerate(self[node_name].edges.keys()):
-                            if j == 0:
-                                self[node_name].edges[k_] = success_rate
-                            else:
-                                self[node_name].edges[k_] = prob_for_other_edges
+    @staticmethod
+    def parse_input(output_mdp, lines=[]):
+        unclaimed_probability_lines = []
+        while True:
+            for i, line in enumerate(lines):
+                line = line.replace("\n", '')
+                if comment.match(line) or line == '':
+                    print_d(f"line #{i}: {line} {'EMPTY LINE' if len(line) == 0 else 'COMMENT'}")
+                    continue
+                # Figure out what kind of line this line is.
+                elif reward_line.match(line):
+                    print_d(f"line #{i}: {line} REWARD/COST")
+                    node_name, reward_value = tokenize(line)
+                    # if the node is already in the graph, add the reward to the node if not, create a new node
+                    if node_name in output_mdp.keys():
+                        output_mdp[node_name].reward = Decimal(reward_value)
                     else:
-                        # chance node
-                        p_sum = 0
-                        # TODO: Fix this patch. There is a problem with repeated edges
-                        if not self[node_name].edge_line:
-                            for j, e in enumerate(self[node_name].edges.keys()):
-                                p_sum += Decimal(edge_probabilities[j])
-                                if self[node_name].edges[e] is None:
-                                    self[node_name].edges[e] = Decimal(edge_probabilities[j])
-                                else:
-                                    self[node_name].edges[e] += Decimal(edge_probabilities[j])
-                            if p_sum != 1:
-                                print("The probabilities must add up to 1")
-                                sys.exit(1)
-                        else:
-                            for j, e in enumerate(self[node_name].edge_line):
-                                p_sum += Decimal(edge_probabilities[j])
-                                if self[node_name].edges[e] is None:
-                                    self[node_name].edges[e] = Decimal(edge_probabilities[j])
-                                else:
-                                    self[node_name].edges[e] += Decimal(edge_probabilities[j])
-                        if p_sum != 1:
-                            print("The probabilities must add up to 1")
-                            sys.exit(1)
+                        output_mdp[node_name] = Node(node_name, Decimal(reward_value))
+                elif edge_line.match(line):
+                    print_d(f"line #{i}: {line} EDGE")  # name: [e1, e2, e2]
+                    node_name, neighbors = tokenize(line)
+                    if node_name not in output_mdp.keys():
+                        output_mdp[node_name] = Node(node_name)
+                    output_mdp[node_name].add_edges(neighbors)
+                elif probability_line.match(line):
+                    print_d(f"line #{i}: {line} PROBABILITIES")
+                    node_name, probabilities = tokenize(line)
+                    if node_name not in output_mdp.keys():
+                        unclaimed_probability_lines.append(line)
+                        continue
+                    # Check if we have a decision node.
+                    output_mdp[node_name].add_probabilities(probabilities)
+                else:
+                    print_d("NO MATCH")
+            if unclaimed_probability_lines:
+                # claim the unclaimed probabilities with one more pass.
+                lines = unclaimed_probability_lines
             else:
-                print_d("NO MATCH")
-        # claim the unclaimed probabilities
-        if unclaimed_probabilities:
-            self.parse_input(lines=unclaimed_probabilities)
-        # Look for nodes with no edges.
-        #   These nodes are terminal nodes. A probability entry for such a node is an error
-        for k, v in self.items():
-            if not self[k].edges:
-                self[k].is_terminal = True
+                break
+        for k, v in output_mdp.items():
+            # Look for nodes with no edges. These nodes are terminal nodes.
+            if not output_mdp[k].edges:
+                output_mdp[k].node_class = "terminal"
 
-        # Look for nodes with edges but no probabilities
-        #   If a node has edges but no probability entry, it is assumed to be a decision node with p=1
-        for k, v in self.items():
-            if all(x is None for x in v.edges.values()) and not v.is_terminal:
-                if len(v.edges) != 1:
-                    v.is_decision = True
-                    v.success_rate = 1
-                for i, k_ in enumerate(v.edges.keys()):
-                    if i == 0:
-                        v.edges[k_] = 1
-                    else:
-                        v.edges[k_] = 0
+        for k, v in output_mdp.items():
+            # Look for nodes with edges but no probabilities it is assumed to be a decision node with success_rate=1
+            if all(x == 0 for x in v.edges.values()) and not v.is_terminal():
+                if v.node_class != "decision":  # we don't want to mess with the nodes that are already decision nodes but
+                    if len(v.edges) != 1:
+                        v.node_class = "decision"
+                        v.success_rate = 1
+                    for i, key in enumerate(v.edges.keys()):
+                        v.edges[
+                            key] = 1 if i == 0 else 0  # we set the policy to the first edge we encounter (we might still use a random policy for policy iteration)
 
-
-class Node:
-    """This class represents a node in an MDP"""
-
-    def __init__(self, name, rc=0, decision_node=False):
-        self.name = name
-        self.rc = rc
-        self.edges = {}
-        self.is_decision = decision_node
-        self.success_rate = None
-        self.is_terminal = False
-        self.value = rc  # Every nodes starts with a value equal to its reward
-        self.edge_line = None  # String containing the edge line from the input file
-
-    # a generator for computing the actions (the node that we want to move to and the probabilities for the edges) from the current state
-    def actions(self):
-        """Function that returns the set of actions available from the current  node"""
-        edge_probabilities = sorted(list(self.edges.values()), reverse=True)
-        edge_names = list(self.edges.keys())
-        for i in range(len(self.edges)):
-            yield edge_names[i], {v1: v2 for v1, v2 in zip(edge_names, edge_probabilities)}
-            # rotate edge_probabilities
-            edge_probabilities = edge_probabilities[-1:] + edge_probabilities[:-1]
-
-    def __repr__(self):
-        return f"{self.name}: edges={[(a, '%.3f' % float(round(b, 4))) for a, b in self.edges.items()]} decision={self.is_decision} " \
-               f"success_rate={self.success_rate} terminal={self.is_terminal} value={'%.2f' % round(self.value, 5)} reward={'%.2f' % self.rc}"
-
-    def __hash__(self):
-        return self.name.__hash__()
-
-
-app = dash.Dash(__name__)
 
 if __name__ == '__main__':
+    # Parse the command line arguments
     parser = argparse.ArgumentParser(description='Markov Process Solver: A generic markov process solver')
     parser.add_argument('-df', nargs='?', type=float, required=False, default=1.0,
                         help="Discount factor [0, 1] to use on future rewards, defaults to 1.0")
@@ -384,9 +361,12 @@ if __name__ == '__main__':
     parser.add_argument('filename', help='Input file')
     args = parser.parse_args(sys.argv[1:])
     debug = args.d
-    mdp = MDP(df=args.df, tolerance=args.tol, max_iter=args.iter, use_min=args.min)
-    mdp.read_file(args.filename)
+
+    # Create the MDP and solve it.
+    mdp = MDP.read_file(args.filename, df=args.df, tol=args.tol, max_iter=args.iter, use_min=args.min)
+    if debug:
+        pp.pprint(mdp)
     mdp.solve()
+    if debug:
+        pp.pprint(mdp)
     mdp.print_solution()
-    app.layout = html.Div([mdp.print_as_tree()])
-    app.run_server(debug=True)

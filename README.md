@@ -3,7 +3,7 @@ This program is an implementation of a generic mdp solver.
 
 ### Input file
 The input file can contain lines such as:
-* Comment lines that start with # and are ignored (as are blanklines) 
+* Comment lines that start with # and are ignored
 
 * Rewards/costs lines of the form 'name = value' where value is an integer 
 
@@ -14,7 +14,7 @@ edge from name
 of success in a decision node or the probability of each edge in a chance node. 
 
 ### Output
-The output of this program is the optimal policy for the given MDP.
+The output of this program is the optimal policy for the given MDP and the values for each node.
 
 # Program Specification and MDP Theory
 
