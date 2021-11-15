@@ -2,19 +2,15 @@ import re
 import argparse
 from decimal import Decimal
 import sys
-import pprint
 import random
 
-alphanumeric = re.compile(r"[a-zA-Z0-9]+")
 comment = re.compile(r"^#.*$")
-value = re.compile(r"[0-9\-]*")
 # reward lines are of the form 'name = value' where value is an integer
-reward_line = re.compile(f"^[a-zA-Z0-9\-]+ *= *-?[0-9]*$")
+reward_line = re.compile(f"^[a-zA-Z0-9\-']+ *= *-?\.?[0-9]*$")
 # edges are of the form 'name : [e1, e2, e2]' where each e# is the name of an out edge from name
-edge_line = re.compile(f"^[a-zA-Z0-9]+ *: *\[ *([a-zA-Z0-9]*) *(, *[a-zA-Z0-9]*)* *\]$")
+edge_line = re.compile(f"^[a-zA-Z0-9\-']+ *: *\[ *([a-zA-Z0-9\-']*) *(, *[a-zA-Z0-9\-']*)* *\]$")
 # probabilities are of the form 'name % p1 p2 p3'
-probability_line = re.compile(f"^[a-zA-Z0-9]+ *% * (\.*[0-9]*| *)*$")
-pp = pprint.PrettyPrinter(indent=4)
+probability_line = re.compile(f"^[a-zA-Z0-9\-']+ *% * (\.?[0-9]*| *)*$")
 debug = False
 
 
@@ -45,14 +41,19 @@ class Node:
     """This class represents a node in an MDP
         It can be a decision node, a terminal node or a chance node. """
 
-    def __init__(self, name, reward=Decimal(0), node_class="chance"):
+    def __init__(self, name, reward=Decimal(0), node_class="chance", edges=None, success_rate=None, val=Decimal(0),
+                 edge_order=None):
+        if edge_order is None:
+            edge_order = []
+        if edges is None:
+            edges = {}
         self.name = name
         self.reward = reward
-        self.edges = {}
+        self.edges = edges
         self.node_class = node_class
-        self.success_rate = None
-        self.value = reward  # Every nodes starts with a value equal to its reward
-        self.edge_order = []  # list containing the edges from the input file. This is needed to maintain the order
+        self.success_rate = success_rate
+        self.value = val  # Every nodes starts with a value equal to its reward
+        self.edge_order = edge_order  # list containing the edges from the input file. This is needed to maintain the order
 
     # a generator for computing the actions (the node that we want to move to and the probabilities for the edges) from the current state
     def actions(self):
@@ -70,6 +71,9 @@ class Node:
 
     def is_terminal(self):
         return self.node_class == "terminal"
+
+    def is_parent_of(self, possible_child):
+        return possible_child.name in self.edges.keys()
 
     def add_edges(self, neighbors):
         self.edge_order = neighbors  # we need to keep the order of the edges. (this is specially important when there are duplicate edges)
@@ -102,16 +106,18 @@ class Node:
     def __hash__(self):
         return self.name.__hash__()
 
+    def copy(self):
+        return Node(self.name, self.reward, self.node_class, self.edges, self.success_rate, self.value)
+
 
 class Policy(dict):
     """A class to specify the policy of an MDP. A Policy is simply a mapping between Decision nodes and Actions"""
 
     def __init__(self, iterable=None):
         """If random_policy is true then we initialize a random policy for the given graph. If it is false we initialize an empty policy"""
-        if iterable:
-            super(Policy, self).__init__(iterable)
-        else:
-            super(Policy, self).__init__()
+        if iterable is None:
+            iterable = {}
+        super(Policy, self).__init__(iterable)
 
     @staticmethod
     def random_policy(graph):
@@ -128,7 +134,7 @@ class Policy(dict):
             policy.append(f"{key} -> {self[key]}\n")
         return "".join(policy)
 
-    def __copy__(self):
+    def copy(self):
         return Policy(self)
 
     def __eq__(self, other):
@@ -154,6 +160,12 @@ class MDP(dict):
         self.tol = tol
         self.max_iter = max_iter
         self.use_min = use_min
+
+    def copy(self):
+        new_mdp = MDP(self.df, self.policy, self.tol, self.max_iter, self.use_min)
+        for k, v in self.items():
+            new_mdp[k] = v
+        return new_mdp
 
     def solve(self):
         """Solves the MDP using value iteration and greedy policy iteration"""
@@ -181,10 +193,10 @@ class MDP(dict):
         print_d(f"Going into Policy Iteration:")
         if not self.policy:
             self.policy = Policy.random_policy(self)
-        current_policy = self.policy.__copy__()
+        current_policy = self.policy.copy()
         iter_num = 0
         while True:
-            new_policy = current_policy.__copy__()
+            new_policy = current_policy.copy()
             for node in self.values():
                 best_action = None
                 best_action_value = float("-inf")
@@ -204,8 +216,8 @@ class MDP(dict):
                             best_action = action
                     if best_action:
                         new_policy[node.name] = best_action
-            previous_policy = current_policy.__copy__()
-            current_policy = new_policy.__copy__()
+            previous_policy = current_policy.copy()
+            current_policy = new_policy.copy()
             if previous_policy == current_policy:
                 print_d(f"The Policies ARE equal. Iterations: {iter_num}")
                 print_d(f"Previous Policy: {previous_policy}")
@@ -215,7 +227,7 @@ class MDP(dict):
             print_d(f"Previous Policy: {previous_policy}")
             print_d(f"Current Policy: {current_policy}")
             iter_num += 1
-        self.policy = new_policy.__copy__()
+        self.policy = new_policy.copy()
 
     def value_iteration(self):
         print_d(f"Going into Value Iteration:")
@@ -227,7 +239,6 @@ class MDP(dict):
         while True:
             new_values = {}
             for node in self.values():
-                # for action, probabilities in node.actions():
                 new_values[node] = self.value(node, self.policy)
             previous_values = current_values.copy()
             for node in new_values.keys():
@@ -259,12 +270,7 @@ class MDP(dict):
         if state.is_decision():
             action = policy[state.name]
             edges = list(state.edges.keys())
-            probabilities = {}
-            for e in edges:
-                if e == action:
-                    probabilities[e] = state.success_rate
-                else:
-                    probabilities[e] = Decimal((1 - state.success_rate) / (len(edges) - 1))
+            probabilities = {e: state.success_rate if e == action else Decimal((1 - state.success_rate) / (len(edges) - 1)) for e in edges}
         for node_name, prob in probabilities.items():
             expected_utility += Decimal(self.df) * Decimal(prob) * self[node_name].value
         return Decimal(state.reward) + expected_utility
@@ -344,6 +350,69 @@ class MDP(dict):
                         v.edges[
                             key] = 1 if i == 0 else 0  # we set the policy to the first edge we encounter (we might still use a random policy for policy iteration)
 
+    # def print_as_tree(self, layout='breadthfirst', root=None, node_dist=1):
+    #     tree_mdp = self.copy()
+    #     if root is None:
+    #         root = list(tree_mdp.keys())[0]
+    #     size_y = 700
+    #     nodes = [{'data': {'id': x.name, 'label': f"{x.name.upper()}", 'node_label': f"{x.name.upper()}, val: {round(x.value, 3)}", }, 'classes': x.node_class,
+    #               'position': {'x': random.randint(0, size_y), 'y': random.randint(0, size_y)}} for x in tree_mdp.values()]
+    #     edges = []
+    #     current_nodes = list(tree_mdp.keys())
+    #     for i in current_nodes:
+    #         for node_name in tree_mdp.keys():
+    #             if tree_mdp[node_name].is_parent_of(tree_mdp[i]):
+    #                 # change the parent node and add a new node
+    #                 pass
+    #                 # tree_mdp[node_name].edges[]
+    #     for i in tree_mdp.keys():
+    #         # Find all the parents of i
+    #         for k, val in tree_mdp[i].edges.items():
+    #             edge_specification = {
+    #                 'data': {'id': f"{i}{k}",
+    #                          'source': i,
+    #                          'target': k,
+    #                          'weight': round(val, 3)
+    #                          }
+    #             }
+    #             if i in tree_mdp.policy.keys() and tree_mdp.policy[i] == k:
+    #                 edge_specification['style'] = {'line-color': 'red'}
+    #             edges.append(edge_specification)
+    #     return cyto.Cytoscape(
+    #         id="MDP graph",
+    #         layout={'name': layout, 'roots': f"#{root}", 'spacingFactor': node_dist},
+    #         style={'wdith': '100%', 'height': f"{size_y}px"},
+    #         elements=nodes + edges,
+    #         stylesheet=
+    #         [
+    #             {
+    #                 'selector': 'node',
+    #                 'style': {
+    #                     'content': 'data(node_label)',
+    #                 }
+    #             },
+    #             {
+    #                 'selector': 'edge',
+    #                 'style': {
+    #                     'curve-style': 'bezier',
+    #                     'target-arrow-shape': 'triangle',
+    #                     'label': 'data(weight)'
+    #                 }
+    #             },
+    #             {
+    #                 'selector': '.terminal',
+    #                 'style': {
+    #                     'shape': 'triangle'
+    #                 }
+    #             },
+    #             {
+    #                 'selector': '.decision',
+    #                 'style': {
+    #                     'shape': 'square'
+    #                 }
+    #             }
+    #         ]
+
 
 if __name__ == '__main__':
     # Parse the command line arguments
@@ -358,15 +427,22 @@ if __name__ == '__main__':
                         help='Integer that indicates a cutoff for value iteration, defaults to 100')
     parser.add_argument('-d', required=False, action='store_true',
                         help='flag for debugging. It prints the attributes of the nodes before and after solving the MDP')
+    parser.add_argument('-t', required=False, action='store_true',
+                        help='flag for running a flask app that displays a graph for the MDP')
     parser.add_argument('filename', help='Input file')
     args = parser.parse_args(sys.argv[1:])
     debug = args.d
 
     # Create the MDP and solve it.
     mdp = MDP.read_file(args.filename, df=args.df, tol=args.tol, max_iter=args.iter, use_min=args.min)
-    if debug:
-        pp.pprint(mdp)
     mdp.solve()
-    if debug:
-        pp.pprint(mdp)
     mdp.print_solution()
+    # if args.t:
+    #     import dash
+    #     import dash_cytoscape as cyto
+    #     from dash import html
+    #
+    #     app = dash.Dash(__name__)
+    #     app.layout = html.Div([mdp.print_as_tree(root='Office', layout='circle', node_dist=0.7)])
+    #     app.run_server(debug=True)
+
