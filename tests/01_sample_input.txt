@@ -1,4 +1,4 @@
-# MDP for homework 8 part 1
+# MDP for example 1
 
 # A and Q are the terminal states with reward 1
 A = 1
