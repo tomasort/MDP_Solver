@@ -4,8 +4,8 @@ from decimal import Decimal
 import sys
 import re
 
-in_dir = "./input_files"
-out_dir = "./output_files"
+in_dir = "./tests/input_files"
+out_dir = "./tests/output_files"
 
 
 def read_policy(text):
