@@ -1,74 +1,26 @@
-/* Custom CSS for MDP Solver Web UI */
-
-:root {
-    --primary-color: #0d6efd;
-    --secondary-color: #6c757d;
-    --success-color: #198754;
-    --danger-color: #dc3545;
-    --warning-color: #ffc107;
-    --info-color: #0dcaf0;
-    --light-color: #f8f9fa;
-    --dark-color: #212529;
-}
+/* MDP Solver Custom Styles */
 
 body {
     background-color: #f8f9fa;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Card improvements */
 .card {
     border: none;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    transition: box-shadow 0.15s ease-in-out;
 }
 
-.card:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-.card-header {
-    background-color: var(--light-color);
-    border-bottom: 1px solid #dee2e6;
-    font-weight: 600;
-}
-
-/* Input textarea styling */
 #mdpInput {
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     font-size: 14px;
-    line-height: 1.5;
-    border: none;
-    resize: vertical;
     min-height: 300px;
 }
 
-#mdpInput:focus {
-    box-shadow: none;
-    border-color: var(--primary-color);
-}
-
-/* CodeMirror custom styling */
-.CodeMirror {
-    height: auto;
-    min-height: 300px;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 14px;
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
-}
-
-.CodeMirror-focused {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-/* Graph container */
 #graphContainer {
     min-height: 500px;
     background-color: #fff;
     border: 1px solid #dee2e6;
     border-radius: 0.375rem;
+    position: relative;
 }
 
 #graphPlaceholder {
@@ -81,64 +33,41 @@ body {
     z-index: 1;
 }
 
-/* SVG Graph Styling */
 #mdpGraph {
     background-color: #fff;
     position: relative;
     z-index: 2;
 }
 
-/* Node styles */
 .node-circle {
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.node-circle:hover {
-    stroke-width: 3px;
-    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+.node-decision { 
+    fill: #0d6efd; 
+    stroke: #0a58ca; 
 }
 
-.node-decision {
-    fill: #0d6efd;
-    stroke: #0a58ca;
+.node-chance { 
+    fill: #198754; 
+    stroke: #146c43; 
 }
 
-.node-chance {
-    fill: #198754;
-    stroke: #146c43;
+.node-terminal { 
+    fill: #dc3545; 
+    stroke: #b02a37; 
 }
 
-.node-terminal {
-    fill: #dc3545;
-    stroke: #b02a37;
-}
-
-/* Edge styles */
 .edge-line {
     stroke: #6c757d;
     stroke-width: 2;
     fill: none;
-    marker-end: url(#arrowhead);
-    transition: all 0.2s ease;
-}
-
-.edge-line:hover {
-    stroke: #495057;
-    stroke-width: 3;
 }
 
 .edge-policy {
     stroke: #ffc107;
     stroke-width: 4;
-    stroke-dasharray: none;
-}
-
-.edge-label {
-    font-size: 12px;
-    fill: #495057;
-    text-anchor: middle;
-    pointer-events: none;
 }
 
 .node-label {
@@ -156,172 +85,36 @@ body {
     fill: #495057;
 }
 
-/* Status badges */
-.status-valid {
-    background-color: var(--success-color) !important;
-}
-
-.status-invalid {
-    background-color: var(--danger-color) !important;
-}
-
-.status-ready {
-    background-color: var(--secondary-color) !important;
-}
-
-/* Results styling */
-.policy-item {
+.policy-item, .value-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem;
     margin-bottom: 0.25rem;
-    background-color: var(--light-color);
+    background-color: #f8f9fa;
     border-radius: 0.25rem;
-    border-left: 4px solid var(--primary-color);
+    border-left: 4px solid #0d6efd;
 }
 
-.value-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem;
-    margin-bottom: 0.25rem;
-    background-color: var(--light-color);
-    border-radius: 0.25rem;
+.value-positive { 
+    border-left-color: #198754; 
 }
 
-.value-positive {
-    border-left: 4px solid var(--success-color);
+.value-negative { 
+    border-left-color: #dc3545; 
 }
 
-.value-negative {
-    border-left: 4px solid var(--danger-color);
+.value-zero { 
+    border-left-color: #6c757d; 
 }
 
-.value-zero {
-    border-left: 4px solid var(--secondary-color);
-}
-
-/* Parameter controls */
-.form-range:focus {
-    box-shadow: none;
-}
-
-.form-range:focus::-webkit-slider-thumb {
-    box-shadow: 0 0 0 1px #fff, 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-.form-range:focus::-moz-range-thumb {
-    box-shadow: 0 0 0 1px #fff, 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-/* Button improvements */
-.btn {
-    transition: all 0.15s ease-in-out;
-}
-
-.btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
-}
-
-/* Loading animation */
-.spinner-border {
-    animation: spinner-border 0.75s linear infinite;
-}
-
-/* Example cards */
-.example-card {
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 2px solid transparent;
-}
-
-.example-card:hover {
-    border-color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-/* Tooltip styling */
-.tooltip-inner {
-    background-color: var(--dark-color);
-    color: white;
-    max-width: 200px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .container-fluid {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-    
-    .card-body {
-        padding: 1rem;
-    }
-    
-    #mdpInput,
-    .CodeMirror {
-        min-height: 200px;
-    }
-    
-    #graphContainer {
-        min-height: 300px;
-    }
-    
-    .btn-group {
-        flex-direction: column;
-    }
-    
-    .btn-group .btn {
-        margin-bottom: 0.25rem;
-    }
-}
-
-/* Animation classes */
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.slide-in {
-    animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(0); }
-}
-
-/* Focus improvements */
-.form-control:focus,
-.form-select:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-/* Custom scrollbars */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #a1a1a1;
+.edge-label {
+    font-size: 12px;
+    font-weight: bold;
+    text-anchor: middle;
+    pointer-events: none;
+    fill: #495057;
+    stroke: white;
+    stroke-width: 3;
+    paint-order: stroke;
 }
