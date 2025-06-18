@@ -211,33 +211,5 @@ def get_example_content(example_id):
             'error': str(e)
         }), 500
 
-@app.route('/api/upload', methods=['POST'])
-def upload_file():
-    """Upload and parse MDP file"""
-    try:
-        if 'file' not in request.files:
-            return jsonify({'success': False, 'error': 'No file provided'}), 400
-            
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({'success': False, 'error': 'No file selected'}), 400
-            
-        content = file.read().decode('utf-8')
-        
-        # Parse the file using your existing parsing logic
-        # This would need to be implemented based on your current file format
-        
-        return jsonify({
-            'success': True,
-            'content': content,
-            'message': 'File uploaded successfully. Please implement parsing logic.'
-        })
-        
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 400
-
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5051)
+    app.run(debug=True, host='0.0.0.0', port=5050)

@@ -37,6 +37,100 @@ body {
     margin: 0;
 }
 
+/* Responsive Layout Improvements */
+@media (min-width: 992px) {
+    .left-column {
+        position: sticky;
+        top: 1rem;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+    }
+    
+    .mdp-text-editor {
+        min-height: 300px;
+        max-height: 400px;
+    }
+    
+    .config-card, .examples-card {
+        max-height: none;
+    }
+    
+    /* Hide mobile solution sections on large screens */
+    .mobile-solution-section {
+        display: none !important;
+    }
+}
+
+@media (max-width: 991.98px) {
+    /* On mobile, show solution after configuration but before examples */
+    .mobile-solution-section {
+        order: 2;
+    }
+    
+    .examples-card {
+        order: 3;
+    }
+    
+    .mdp-text-editor {
+        min-height: 200px;
+    }
+    
+    /* Hide desktop solution sections on small screens */
+    .d-none.d-lg-block {
+        display: none !important;
+    }
+}
+
+/* Enhanced Card Styling */
+.card-body {
+    padding: 1.5rem;
+}
+
+.card .card-header {
+    padding: 1rem 1.5rem;
+}
+
+/* Text Editor Styling */
+#textEditor {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.4;
+    border-radius: 0.375rem;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#textEditor:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+}
+
+/* Results Section Enhancements */
+.table-responsive {
+    border-radius: 0.375rem;
+    border: 1px solid #dee2e6;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.placeholder-row td {
+    border: none !important;
+    background-color: #f8f9fa;
+}
+
+.placeholder-row .fa-3x {
+    font-size: 2.5rem;
+}
+
+.placeholder-row {
+    background-color: #f8f9fa;
+}
+
 /* Graph Container */
 #graphContainer {
     border: 2px dashed #dee2e6;

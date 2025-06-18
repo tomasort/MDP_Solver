@@ -51,7 +51,6 @@ class MDPSolver {
         document.getElementById('clearBtn').addEventListener('click', () => this.clearAll());
 
         // File operations
-        document.getElementById('fileInput').addEventListener('change', (e) => this.handleFileUpload(e));
         document.getElementById('textEditor').addEventListener('input', () => this.parseTextInput());
     }
 
@@ -119,83 +118,125 @@ class MDPSolver {
 
     // Show placeholder content in results section
     showPlaceholderResults() {
-        // Restore placeholder in policy table
-        const policyTbody = document.getElementById('policyTableBody');
-        policyTbody.innerHTML = `
-            <tr class="placeholder-row">
-                <td colspan="2" class="text-center text-muted py-4">
-                    <i class="fas fa-play-circle fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
-                    Click "Solve MDP" to see the optimal policy
-                </td>
-            </tr>
-        `;
+        // Restore placeholder in policy table (both desktop and mobile)
+        const policyTbodies = ['policyTableBody', 'policyTableBody-mobile'];
+        policyTbodies.forEach(id => {
+            const tbody = document.getElementById(id);
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr class="placeholder-row">
+                        <td colspan="2" class="text-center text-muted py-4">
+                            <i class="fas fa-play-circle fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
+                            Click "Solve MDP" to see the optimal policy
+                        </td>
+                    </tr>
+                `;
+            }
+        });
 
-        // Restore placeholder in values table
-        const valuesTbody = document.getElementById('valuesTableBody');
-        valuesTbody.innerHTML = `
-            <tr class="placeholder-row">
-                <td colspan="2" class="text-center text-muted py-4">
-                    <i class="fas fa-calculator fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
-                    State values will appear here after solving
-                </td>
-            </tr>
-        `;
+        // Restore placeholder in values table (both desktop and mobile)
+        const valuesTbodies = ['valuesTableBody', 'valuesTableBody-mobile'];
+        valuesTbodies.forEach(id => {
+            const tbody = document.getElementById(id);
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr class="placeholder-row">
+                        <td colspan="2" class="text-center text-muted py-4">
+                            <i class="fas fa-calculator fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
+                            State values will appear here after solving
+                        </td>
+                    </tr>
+                `;
+            }
+        });
 
-        // Restore placeholder statistics
-        const statsElement = document.getElementById('solutionStats');
-        const alertElement = document.getElementById('solutionStatsAlert');
-        alertElement.className = 'alert alert-secondary';
-        statsElement.textContent = 'Define an MDP and click "Solve MDP" to see solution statistics';
+        // Restore placeholder statistics (both desktop and mobile)
+        const statsElements = ['solutionStats', 'solutionStats-mobile'];
+        const alertElements = ['solutionStatsAlert', 'solutionStatsAlert-mobile'];
         
-        // Hide graph section
-        document.getElementById('graphSection').style.display = 'none';
+        statsElements.forEach((id, index) => {
+            const statsElement = document.getElementById(id);
+            const alertElement = document.getElementById(alertElements[index]);
+            if (statsElement && alertElement) {
+                alertElement.className = 'alert alert-secondary';
+                statsElement.textContent = 'Define an MDP and click "Solve MDP" to see solution statistics';
+            }
+        });
+        
+        // Hide graph sections (both desktop and mobile)
+        const graphSections = ['graphSection', 'graphSection-mobile'];
+        graphSections.forEach(id => {
+            const section = document.getElementById(id);
+            if (section) {
+                section.style.display = 'none';
+            }
+        });
     }
 
     // Populate the policy table
     populatePolicyTable(policy) {
-        const tbody = document.getElementById('policyTableBody');
-        tbody.innerHTML = '';
-
-        // Sort states alphabetically for consistent display
-        const sortedStates = Object.keys(policy).sort();
+        const tbodies = ['policyTableBody', 'policyTableBody-mobile'];
         
-        sortedStates.forEach(state => {
-            const row = tbody.insertRow();
-            row.insertCell(0).textContent = state;
-            row.insertCell(1).textContent = policy[state];
+        tbodies.forEach(id => {
+            const tbody = document.getElementById(id);
+            if (tbody) {
+                tbody.innerHTML = '';
+
+                // Sort states alphabetically for consistent display
+                const sortedStates = Object.keys(policy).sort();
+                
+                sortedStates.forEach(state => {
+                    const row = tbody.insertRow();
+                    row.insertCell(0).textContent = state;
+                    row.insertCell(1).textContent = policy[state];
+                });
+            }
         });
     }
 
     // Populate the values table
     populateValuesTable(values) {
-        const tbody = document.getElementById('valuesTableBody');
-        tbody.innerHTML = '';
-
-        // Sort states alphabetically for consistent display
-        const sortedStates = Object.keys(values).sort();
+        const tbodies = ['valuesTableBody', 'valuesTableBody-mobile'];
         
-        sortedStates.forEach(state => {
-            const row = tbody.insertRow();
-            row.insertCell(0).textContent = state;
-            row.insertCell(1).textContent = Number(values[state]).toFixed(3);
+        tbodies.forEach(id => {
+            const tbody = document.getElementById(id);
+            if (tbody) {
+                tbody.innerHTML = '';
+
+                // Sort states alphabetically for consistent display
+                const sortedStates = Object.keys(values).sort();
+                
+                sortedStates.forEach(state => {
+                    const row = tbody.insertRow();
+                    row.insertCell(0).textContent = state;
+                    row.insertCell(1).textContent = Number(values[state]).toFixed(3);
+                });
+            }
         });
     }
 
     // Update solution statistics
     updateSolutionStats(result) {
-        const statsElement = document.getElementById('solutionStats');
-        const alertElement = document.getElementById('solutionStatsAlert');
+        const statsElements = ['solutionStats', 'solutionStats-mobile'];
+        const alertElements = ['solutionStatsAlert', 'solutionStatsAlert-mobile'];
         const iterations = result.iterations || 'N/A';
         const converged = result.converged ? 'Yes' : 'No';
         
-        // Change alert style to info when results are available
-        alertElement.className = 'alert alert-info';
-        
-        statsElement.innerHTML = `
-            Iterations: <strong>${iterations}</strong> | 
-            Converged: <strong>${converged}</strong> | 
-            States: <strong>${Object.keys(result.values).length}</strong>
-        `;
+        statsElements.forEach((id, index) => {
+            const statsElement = document.getElementById(id);
+            const alertElement = document.getElementById(alertElements[index]);
+            
+            if (statsElement && alertElement) {
+                // Change alert style to info when results are available
+                alertElement.className = 'alert alert-info';
+                
+                statsElement.innerHTML = `
+                    Iterations: <strong>${iterations}</strong> | 
+                    Converged: <strong>${converged}</strong> | 
+                    States: <strong>${Object.keys(result.values).length}</strong>
+                `;
+            }
+        });
     }
 
     // Log the solution to console in a formatted way
@@ -337,34 +378,6 @@ class MDPSolver {
     }
 
     // Handle file upload
-    async handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        try {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            const result = await this.makeRequest('/api/upload', {
-                method: 'POST',
-                headers: {}, // Remove Content-Type to let browser set it for FormData
-                body: formData
-            });
-
-            if (result.success) {
-                document.getElementById('textEditor').value = result.content;
-                this.parseTextInput();
-                this.showAlert('File uploaded successfully!', 'success');
-            } else {
-                this.showAlert(`Upload error: ${result.error}`, 'danger');
-            }
-        } catch (error) {
-            this.showAlert(`Upload error: ${error.message}`, 'danger');
-        } finally {
-            event.target.value = ''; // Clear file input
-        }
-    }
-
     // Parse text input from the editor into MDP data structure
     parseTextInput() {
         const text = document.getElementById('textEditor').value;
@@ -452,38 +465,54 @@ class MDPSolver {
 
     // Display MDP graph using D3.js
     displayGraph(graphData) {
-        // Show the graph section
-        document.getElementById('graphSection').style.display = 'block';
+        // Show the graph sections (both desktop and mobile)
+        const graphSections = ['graphSection', 'graphSection-mobile'];
+        const graphContainers = ['mdpGraph', 'mdpGraph-mobile'];
         
-        // Clear any existing graph
-        d3.select("#mdpGraph").selectAll("*").remove();
-        
-        const container = document.getElementById('mdpGraph');
-        const width = container.clientWidth;
-        const height = 400;
-        
-        // Create SVG
-        const svg = d3.select("#mdpGraph")
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height);
-        
-        // Define arrow markers for edges
-        svg.append("defs").selectAll("marker")
-            .data(["optimal", "alternative"])
-            .enter().append("marker")
-            .attr("id", d => `arrow-${d}`)
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 20)
-            .attr("refY", 0)
-            .attr("markerWidth", 6)
-            .attr("markerHeight", 6)
-            .attr("orient", "auto")
-            .append("path")
-            .attr("d", "M0,-5L10,0L0,5")
-            .attr("fill", d => d === "optimal" ? "#2196F3" : "#E0E0E0");
-        
-        // Create force simulation
+        graphSections.forEach((sectionId, index) => {
+            const section = document.getElementById(sectionId);
+            const containerId = graphContainers[index];
+            
+            if (section) {
+                section.style.display = 'block';
+                
+                // Clear any existing graph
+                d3.select(`#${containerId}`).selectAll("*").remove();
+                
+                const container = document.getElementById(containerId);
+                if (container) {
+                    const width = container.clientWidth;
+                    const height = 400;
+                    
+                    // Create SVG
+                    const svg = d3.select(`#${containerId}`)
+                        .append("svg")
+                        .attr("width", width)
+                        .attr("height", height);
+                    
+                    // Define arrow markers for edges
+                    svg.append("defs").selectAll("marker")
+                        .data(["optimal", "alternative"])
+                        .enter().append("marker")
+                        .attr("id", d => `arrow-${d}-${index}`)
+                        .attr("viewBox", "0 -5 10 10")
+                        .attr("refX", 20)
+                        .attr("refY", 0)
+                        .attr("markerWidth", 6)
+                        .attr("markerHeight", 6)
+                        .attr("orient", "auto")
+                        .append("path")
+                        .attr("d", "M0,-5L10,0L0,5")
+                        .attr("fill", d => d === "optimal" ? "#2196F3" : "#E0E0E0");
+                    
+                    // Create force simulation
+                    this.createGraphVisualization(svg, graphData, width, height, index);
+                }
+            }
+        });
+    }
+
+    createGraphVisualization(svg, graphData, width, height, index) {
         const simulation = d3.forceSimulation(graphData.nodes)
             .force("link", d3.forceLink(graphData.edges).id(d => d.id).distance(100))
             .force("charge", d3.forceManyBody().strength(-300))
@@ -498,7 +527,7 @@ class MDPSolver {
             .enter().append("line")
             .attr("stroke", d => d.is_optimal ? "#2196F3" : "#E0E0E0")
             .attr("stroke-width", d => d.is_optimal ? 3 : 1)
-            .attr("marker-end", d => `url(#arrow-${d.is_optimal ? 'optimal' : 'alternative'})`);
+            .attr("marker-end", d => `url(#arrow-${d.is_optimal ? 'optimal' : 'alternative'}-${index})`);
         
         // Create nodes
         const node = svg.append("g")

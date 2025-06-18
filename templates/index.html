@@ -24,9 +24,21 @@
 
     <div class="container-fluid mt-4">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3">
-                <div class="card">
+            <!-- Left Column: MDP Definition, Configuration, Examples -->
+            <div class="col-lg-5 col-md-12 order-1 order-lg-1 left-column">
+                <!-- MDP Text Definition -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-code me-2"></i>MDP Definition (Text Format)</h6>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="form-control mdp-text-editor" id="textEditor" rows="15" 
+                                  placeholder="Enter MDP definition in text format...&#10;Example:&#10;kitchen = -1&#10;kitchen : [living_room, bedroom]&#10;kitchen % 0.8 0.2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Configuration -->
+                <div class="card mb-3 config-card">
                     <div class="card-header">
                         <h5><i class="fas fa-cogs me-2"></i>Configuration</h5>
                     </div>
@@ -77,8 +89,121 @@
                     </div>
                 </div>
 
+                <!-- Mobile Solution Section (visible only on narrow screens) -->
+                <div class="d-lg-none mobile-solution-section">
+                    <!-- Results Section -->
+                    <div class="card mb-3" id="resultsSection-mobile">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>MDP Solution</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Policy Results -->
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-route me-2"></i>Optimal Policy</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped" id="policyTable-mobile">
+                                            <thead>
+                                                <tr>
+                                                    <th>State</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="policyTableBody-mobile">
+                                                <tr class="placeholder-row">
+                                                    <td colspan="2" class="text-center text-muted py-4">
+                                                        <i class="fas fa-play-circle fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
+                                                        Click "Solve MDP" to see the optimal policy
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <!-- Value Results -->
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-calculator me-2"></i>State Values</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped" id="valuesTable-mobile">
+                                            <thead>
+                                                <tr>
+                                                    <th>State</th>
+                                                    <th>Value</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="valuesTableBody-mobile">
+                                                <tr class="placeholder-row">
+                                                    <td colspan="2" class="text-center text-muted py-4">
+                                                        <i class="fas fa-calculator fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
+                                                        State values will appear here after solving
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Solution Statistics -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="alert alert-secondary" id="solutionStatsAlert-mobile">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Solution Statistics:</strong>
+                                        <span id="solutionStats-mobile">Define an MDP and click "Solve MDP" to see solution statistics</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MDP Graph Visualization -->
+                    <div class="card mb-3" id="graphSection-mobile" style="display: none;">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-project-diagram me-2"></i>MDP Graph Visualization</h6>
+                        </div>
+                        <div class="card-body">
+                            <!-- Graph Legend -->
+                            <div class="mb-3">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Node Legend</h6>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="legend-item node" style="background: #4CAF50; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px;"></div>
+                                            <span>Positive Value State</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="legend-item node" style="background: #f44336; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px;"></div>
+                                            <span>Negative Value State</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <div class="legend-item node" style="background: #9E9E9E; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px;"></div>
+                                            <span>Zero Value State</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Edge Legend</h6>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="legend-item edge" style="background: #2196F3; width: 30px; height: 4px; margin-right: 10px;"></div>
+                                            <span>Optimal Policy Action</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <div class="legend-item edge" style="background: #E0E0E0; width: 30px; height: 2px; margin-right: 10px;"></div>
+                                            <span>Alternative Action</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Graph Container -->
+                            <div id="mdpGraph-mobile" style="width: 100%; height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Examples -->
-                <div class="card mt-3">
+                <div class="card examples-card">
                     <div class="card-header">
                         <h6><i class="fas fa-lightbulb me-2"></i>Examples</h6>
                     </div>
@@ -94,40 +219,19 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- File Upload -->
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h6><i class="fas fa-upload me-2"></i>Upload MDP File</h6>
-                    </div>
-                    <div class="card-body">
-                        <input type="file" class="form-control" id="fileInput" accept=".txt">
-                    </div>
-                </div>
             </div>
 
-            <!-- Main Content -->
-            <div class="col-md-9">
-                <!-- Text Editor -->
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0"><i class="fas fa-code me-2"></i>MDP Definition (Text Format)</h6>
-                    </div>
-                    <div class="card-body">
-                        <textarea class="form-control" id="textEditor" rows="20" 
-                                  placeholder="Enter MDP definition in text format...&#10;Example:&#10;kitchen = -1&#10;kitchen : [living_room, bedroom]&#10;kitchen % 0.8 0.2"></textarea>
-                    </div>
-                </div>
-
+            <!-- Right Column: Solution Results and Graph (visible only on wide screens) -->
+            <div class="col-lg-7 col-md-12 order-2 order-lg-2 d-none d-lg-block">
                 <!-- Results Section -->
-                <div class="card mt-3" id="resultsSection">
+                <div class="card mb-3" id="resultsSection">
                     <div class="card-header">
                         <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>MDP Solution</h6>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <!-- Policy Results -->
-                            <div class="col-md-6">
+                            <div class="col-xl-6 col-md-12">
                                 <h6><i class="fas fa-route me-2"></i>Optimal Policy</h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm table-striped" id="policyTable">
@@ -150,7 +254,7 @@
                             </div>
                             
                             <!-- Value Results -->
-                            <div class="col-md-6">
+                            <div class="col-xl-6 col-md-12">
                                 <h6><i class="fas fa-calculator me-2"></i>State Values</h6>
                                 <div class="table-responsive">
                                     <table class="table table-sm table-striped" id="valuesTable">
@@ -183,51 +287,49 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- MDP Graph Visualization -->
-                        <div class="row mt-3" id="graphSection" style="display: none;">
-                            <div class="col-12">
-                                <h6><i class="fas fa-project-diagram me-2"></i>MDP Graph Visualization</h6>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <!-- Graph Legend -->
-                                        <div class="mb-3">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <h6>Node Legend</h6>
-                                                    <div class="d-flex align-items-center mb-2">
-                                                        <div class="legend-item node" style="background: #4CAF50; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px;"></div>
-                                                        <span>Positive Value State</span>
-                                                    </div>
-                                                    <div class="d-flex align-items-center mb-2">
-                                                        <div class="legend-item node" style="background: #f44336; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px;"></div>
-                                                        <span>Negative Value State</span>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="legend-item node" style="background: #9E9E9E; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px;"></div>
-                                                        <span>Zero Value State</span>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <h6>Edge Legend</h6>
-                                                    <div class="d-flex align-items-center mb-2">
-                                                        <div class="legend-item edge" style="background: #2196F3; width: 30px; height: 4px; margin-right: 10px;"></div>
-                                                        <span>Optimal Policy Action</span>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="legend-item edge" style="background: #E0E0E0; width: 30px; height: 2px; margin-right: 10px;"></div>
-                                                        <span>Alternative Action</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Graph Container -->
-                                        <div id="mdpGraph" style="width: 100%; height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
+                    </div>
+                </div>
+
+                <!-- MDP Graph Visualization -->
+                <div class="card" id="graphSection" style="display: none;">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-project-diagram me-2"></i>MDP Graph Visualization</h6>
+                    </div>
+                    <div class="card-body">
+                        <!-- Graph Legend -->
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Node Legend</h6>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="legend-item node" style="background: #4CAF50; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px;"></div>
+                                        <span>Positive Value State</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="legend-item node" style="background: #f44336; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px;"></div>
+                                        <span>Negative Value State</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="legend-item node" style="background: #9E9E9E; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px;"></div>
+                                        <span>Zero Value State</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Edge Legend</h6>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="legend-item edge" style="background: #2196F3; width: 30px; height: 4px; margin-right: 10px;"></div>
+                                        <span>Optimal Policy Action</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="legend-item edge" style="background: #E0E0E0; width: 30px; height: 2px; margin-right: 10px;"></div>
+                                        <span>Alternative Action</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Graph Container -->
+                        <div id="mdpGraph" style="width: 100%; height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
                     </div>
                 </div>
             </div>
