@@ -1,0 +1,31 @@
+{
+  "examples": [
+    {
+      "id": "simple_grid",
+      "name": "Simple Grid World",
+      "description": "A 2x2 grid with goal and obstacle",
+      "file": "simple_grid.txt",
+      "discount_factor": 0.9,
+      "tolerance": 0.01,
+      "minimize": false
+    },
+    {
+      "id": "robot_navigation",
+      "name": "Robot Navigation",
+      "description": "Robot choosing between risky and safe paths",
+      "file": "robot_navigation.txt",
+      "discount_factor": 0.9,
+      "tolerance": 0.01,
+      "minimize": false
+    },
+    {
+      "id": "office_building",
+      "name": "Office Building",
+      "description": "Navigation through an office building with multiple paths",
+      "file": "office_building.txt",
+      "discount_factor": 0.85,
+      "tolerance": 0.005,
+      "minimize": false
+    }
+  ]
+}
