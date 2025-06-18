@@ -68,12 +68,41 @@ def solve_mdp():
         # Solve the MDP
         mdp.solve()
         
+        # Prepare graph data for visualization
+        nodes = []
+        edges = []
+        
+        for state_name, node in mdp.items():
+            # Create node data
+            nodes.append({
+                'id': state_name,
+                'name': state_name,
+                'value': float(node.value),
+                'reward': float(node.reward),
+                'type': 'state'
+            })
+            
+            # Create edges for all possible transitions
+            for edge_name, probability in node.edges.items():
+                is_optimal = (mdp.policy.get(state_name) == edge_name)
+                
+                edges.append({
+                    'source': state_name,
+                    'target': edge_name,
+                    'probability': float(probability),
+                    'is_optimal': is_optimal
+                })
+        
         # Prepare response
         result = {
             'success': True,
             'policy': {name: str(action) for name, action in mdp.policy.items()},
             'values': {name: float(node.value) for name, node in mdp.items()},
-            'converged': True
+            'converged': True,
+            'graph': {
+                'nodes': nodes,
+                'edges': edges
+            }
         }
         
         return jsonify(result)
@@ -211,4 +240,4 @@ def upload_file():
         }), 400
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5050)
+    app.run(debug=True, host='0.0.0.0', port=5051)

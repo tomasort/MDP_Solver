@@ -115,6 +115,49 @@ body {
     background: white;
 }
 
+/* Graph Visualization Styles */
+#mdpGraph {
+    background-color: #fafafa;
+}
+
+#mdpGraph svg {
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.nodes circle {
+    cursor: pointer;
+    transition: r 0.2s ease;
+}
+
+.nodes circle:hover {
+    r: 18;
+    stroke-width: 3;
+}
+
+.links line {
+    opacity: 0.8;
+}
+
+.edge-labels text {
+    pointer-events: none;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 500;
+}
+
+.legend-item {
+    display: inline-block;
+}
+
+/* Legend styling */
+.card .legend-item.node {
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.card .legend-item.edge {
+    border-radius: 2px;
+}
+
 /* Form Styling */
 .form-range::-webkit-slider-thumb {
     background: var(--primary-color);

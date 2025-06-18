@@ -8,6 +8,9 @@ class MDPSolver {
         this.initializeEventListeners();
         this.initializeTooltips();
         this.updateDiscountDisplay();
+        
+        // Load available examples
+        this.loadAvailableExamples();
     }
 
     // Initialize MDP data structure
@@ -107,6 +110,11 @@ class MDPSolver {
         this.populatePolicyTable(result.policy);
         this.populateValuesTable(result.values);
         this.updateSolutionStats(result);
+        
+        // Display graph if graph data is available
+        if (result.graph) {
+            this.displayGraph(result.graph);
+        }
     }
 
     // Show placeholder content in results section
@@ -138,6 +146,9 @@ class MDPSolver {
         const alertElement = document.getElementById('solutionStatsAlert');
         alertElement.className = 'alert alert-secondary';
         statsElement.textContent = 'Define an MDP and click "Solve MDP" to see solution statistics';
+        
+        // Hide graph section
+        document.getElementById('graphSection').style.display = 'none';
     }
 
     // Populate the policy table
@@ -438,6 +449,141 @@ class MDPSolver {
             }
         }, 5000);
     }
+
+    // Display MDP graph using D3.js
+    displayGraph(graphData) {
+        // Show the graph section
+        document.getElementById('graphSection').style.display = 'block';
+        
+        // Clear any existing graph
+        d3.select("#mdpGraph").selectAll("*").remove();
+        
+        const container = document.getElementById('mdpGraph');
+        const width = container.clientWidth;
+        const height = 400;
+        
+        // Create SVG
+        const svg = d3.select("#mdpGraph")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+        
+        // Define arrow markers for edges
+        svg.append("defs").selectAll("marker")
+            .data(["optimal", "alternative"])
+            .enter().append("marker")
+            .attr("id", d => `arrow-${d}`)
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 20)
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .attr("fill", d => d === "optimal" ? "#2196F3" : "#E0E0E0");
+        
+        // Create force simulation
+        const simulation = d3.forceSimulation(graphData.nodes)
+            .force("link", d3.forceLink(graphData.edges).id(d => d.id).distance(100))
+            .force("charge", d3.forceManyBody().strength(-300))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collision", d3.forceCollide().radius(25));
+        
+        // Create links/edges
+        const link = svg.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(graphData.edges)
+            .enter().append("line")
+            .attr("stroke", d => d.is_optimal ? "#2196F3" : "#E0E0E0")
+            .attr("stroke-width", d => d.is_optimal ? 3 : 1)
+            .attr("marker-end", d => `url(#arrow-${d.is_optimal ? 'optimal' : 'alternative'})`);
+        
+        // Create nodes
+        const node = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(graphData.nodes)
+            .enter().append("g")
+            .call(d3.drag()
+                .on("start", (event, d) => this.dragstarted(event, d, simulation))
+                .on("drag", (event, d) => this.dragged(event, d))
+                .on("end", (event, d) => this.dragended(event, d, simulation)));
+        
+        // Add circles for nodes
+        node.append("circle")
+            .attr("r", 15)
+            .attr("fill", d => this.getNodeColor(d.value))
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 2);
+        
+        // Add labels for nodes
+        node.append("text")
+            .attr("dx", 0)
+            .attr("dy", 4)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "10px")
+            .attr("font-weight", "bold")
+            .attr("fill", "#fff")
+            .text(d => d.name.length > 6 ? d.name.substring(0, 6) + "..." : d.name);
+        
+        // Add tooltips
+        node.append("title")
+            .text(d => `State: ${d.name}\nValue: ${d.value.toFixed(3)}\nReward: ${d.reward}`);
+        
+        // Add edge labels for probabilities
+        const edgeLabels = svg.append("g")
+            .attr("class", "edge-labels")
+            .selectAll("text")
+            .data(graphData.edges)
+            .enter().append("text")
+            .attr("font-size", "10px")
+            .attr("fill", "#666")
+            .attr("text-anchor", "middle")
+            .text(d => d.probability.toFixed(2));
+        
+        // Update positions on simulation tick
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+            
+            node
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+            
+            edgeLabels
+                .attr("x", d => (d.source.x + d.target.x) / 2)
+                .attr("y", d => (d.source.y + d.target.y) / 2);
+        });
+    }
+    
+    // Get node color based on value
+    getNodeColor(value) {
+        if (value > 0) return "#4CAF50"; // Green for positive
+        if (value < 0) return "#f44336"; // Red for negative
+        return "#9E9E9E"; // Gray for zero
+    }
+    
+    // Drag event handlers for D3 simulation
+    dragstarted(event, d, simulation) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+    
+    dragged(event, d) {
+        d.fx = event.x;
+        d.fy = event.y;
+    }
+    
+    dragended(event, d, simulation) {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+    }
 }
 
 // Global functions for HTML event handlers
@@ -448,8 +594,4 @@ window.loadExample = function(exampleName) {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     window.mdpSolver = new MDPSolver();
-    console.log('MDP Solver initialized');
-    
-    // Load available examples
-    window.mdpSolver.loadAvailableExamples();
 });
