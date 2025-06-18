@@ -95,7 +95,6 @@ class Node:
                 p_sum += Decimal(probabilities[j])
                 self.edges[e] += Decimal(probabilities[j])
             if p_sum != 1:
-                print("The probabilities must add up to 1")
                 sys.exit(1)
 
     def __repr__(self):

@@ -1,0 +1,330 @@
+/* Custom CSS for MDP Solver */
+
+:root {
+    --primary-color: #0066cc;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom: none;
+    font-weight: 600;
+}
+
+.card-header h5, .card-header h6 {
+    color: white;
+    margin: 0;
+}
+
+/* Graph Container */
+#graphContainer {
+    border: 2px dashed #dee2e6;
+    border-radius: 0.375rem;
+    position: relative;
+    overflow: hidden;
+}
+
+#graphContainer.dragover {
+    border-color: var(--primary-color);
+    background-color: #e3f2fd;
+}
+
+/* D3 Graph Styles */
+.node {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.node:hover {
+    stroke-width: 3px;
+}
+
+.node.decision {
+    fill: #4CAF50;
+    stroke: #2E7D32;
+}
+
+.node.chance {
+    fill: #FF9800;
+    stroke: #F57C00;
+}
+
+.node.terminal {
+    fill: #F44336;
+    stroke: #C62828;
+}
+
+.node.selected {
+    stroke: #000;
+    stroke-width: 4px;
+}
+
+.link {
+    stroke: #666;
+    stroke-width: 2px;
+    marker-end: url(#arrowhead);
+    transition: all 0.2s ease;
+}
+
+.link:hover {
+    stroke: var(--primary-color);
+    stroke-width: 3px;
+}
+
+.link.policy {
+    stroke: var(--success-color);
+    stroke-width: 4px;
+}
+
+.node-label {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    text-anchor: middle;
+    pointer-events: none;
+    fill: white;
+}
+
+.edge-label {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 10px;
+    text-anchor: middle;
+    pointer-events: none;
+    fill: #333;
+    background: white;
+}
+
+/* Form Styling */
+.form-range::-webkit-slider-thumb {
+    background: var(--primary-color);
+}
+
+.form-range::-moz-range-thumb {
+    background: var(--primary-color);
+    border: none;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Text Editor */
+#textEditor {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Results Tables */
+.table th {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.table td {
+    border-color: #dee2e6;
+}
+
+/* Placeholder content styling */
+.placeholder-row td {
+    border: none !important;
+    background-color: #f8f9fa;
+}
+
+.placeholder-row .fa-3x {
+    font-size: 2.5rem;
+}
+
+.placeholder-row {
+    background-color: #f8f9fa;
+}
+
+/* Solution statistics alert styling */
+#solutionStatsAlert {
+    transition: all 0.3s ease;
+}
+
+#solutionStatsAlert.alert-secondary {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #6c757d;
+}
+
+#solutionStatsAlert.alert-info {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+/* Loading States */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Alerts */
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.alert-dismissible .btn-close {
+    padding: 0.75rem 1rem;
+}
+
+/* Tooltips */
+.tooltip {
+    font-size: 0.875rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 0.5rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    #graphContainer {
+        height: 300px !important;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.pulse {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* State property panel */
+#statePropertiesPanel {
+    border-left: 4px solid var(--primary-color);
+}
+
+/* Tab styling */
+.nav-tabs .nav-link {
+    color: var(--secondary-color);
+    border: none;
+    border-bottom: 3px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    background: none;
+}
+
+.nav-tabs .nav-link:hover {
+    border-bottom-color: var(--primary-color);
+    background: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* Results section styling */
+#resultsSection {
+    animation: fadeIn 0.3s ease-in;
+}
+
+.stat-box {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: white;
+    margin: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-box h4 {
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+}
+
+.bg-light .card-header {
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Enhanced card styling for results */
+.card.border-0 {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header.bg-success {
+    background-color: var(--success-color) !important;
+}
+
+.card-header.bg-info {
+    background-color: var(--info-color) !important;
+}
+
+.card-header.bg-warning {
+    background-color: var(--warning-color) !important;
+}
+
+.card-header.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Empty state styling */
+.text-center.text-muted .fas {
+    opacity: 0.3;
+}
